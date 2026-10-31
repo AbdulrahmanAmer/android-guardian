@@ -27,6 +27,7 @@
 .ag-rail li svg .track{fill:none;stroke:var(--rail-track);stroke-width:17}
 .ag-rail li svg .arc{fill:none;stroke:var(--sev-ok);stroke-width:17;stroke-linecap:round;stroke-dasharray:var(--p,0) 100;transition:stroke-dasharray .6s var(--ease)}
 .ag-rail li.busy svg .arc{stroke:var(--action)}
+.ag-rail li:not(.busy):not(.done) svg .arc{opacity:0} /* no progress yet: no arc (a 0-length round-capped dash would show a dot) */
 .ag-rail li .n{position:absolute;font-size:var(--fs-section);font-weight:600;line-height:1}
 .ag-rail li.active{opacity:0;pointer-events:none}
 .ag-rail .ag-ball{left:calc(var(--w) + var(--gap) - var(--ball) / 2 + 10px);top:calc(var(--first) + var(--active) * var(--pitch) - var(--ball) / 2);width:var(--ball);height:var(--ball);font-size:var(--fs-section);transition:top var(--dur) var(--ease)}
