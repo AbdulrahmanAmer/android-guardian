@@ -9,12 +9,14 @@
 <link rel="stylesheet" href="../design/tokens.css">
 <link rel="stylesheet" href="../design/components.css">
 <style>
-/* Page layout, direction "Cutout" (tokens and components come from design/). One family, five sizes, blue only for
-   actions, severity colours only for severity. The cutout appears in two places on desktop: the connection chip
-   docked into the top edge and the active step lifted out of the rail. */
+/* Page, direction "Cutout" on glass. Job: product UI for a calm safety tool. Hero: the verdict.
+   A soft colour field fills the window; the content lives on one frosted panel the field seeps through;
+   the dark rail floats beside it with the active step lifted out; the connection chip hangs from the panel's top edge. */
 *{box-sizing:border-box}
-html,body{margin:0;background:var(--paper);color:var(--ink);font:var(--fs-body)/1.5 system-ui,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
-body{position:relative;min-height:100vh}
+html{background:var(--bg);min-height:100%}
+html,body{margin:0;color:var(--ink);font:var(--fs-body)/1.5 system-ui,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+/* one colour field stretched over the whole document, however long it gets */
+body{position:relative;min-height:100vh;background:var(--bg-field),var(--bg);background-size:100% 100%;background-repeat:no-repeat}
 a{color:var(--action)}
 h1,h2,h3,p{margin:0}
 h2{font-size:var(--fs-section);font-weight:600;margin-bottom:12px}
@@ -24,32 +26,28 @@ h2{font-size:var(--fs-section);font-weight:600;margin-bottom:12px}
 hr{border:0;border-top:1px solid var(--rule);margin:40px 0}
 :focus-visible{outline:2px solid var(--ink);outline-offset:2px}
 
-/* the content column sits right of the rail and its lifted step */
-.main{padding:0 var(--gutter) 48px 272px;max-width:1300px}
-@media (max-width:860px){.main{padding-left:var(--gutter)}.ag-rail{display:none}}
+/* the glass panel */
+.shell{position:relative;margin:24px 24px 24px 248px;min-height:calc(100vh - 48px);border-radius:28px;background:var(--glass);border:1px solid var(--glass-border);box-shadow:var(--glass-shadow);
+  -webkit-backdrop-filter:blur(34px) saturate(1.35);backdrop-filter:blur(34px) saturate(1.35);overflow:clip}
+.main{padding:0 48px 48px;max-width:1200px}
+.ag-rail{position:fixed;top:24px;left:0;z-index:2}
+@media (max-width:1100px){.shell{margin-left:232px}.main{padding:0 32px 40px}}
+@media (max-width:860px){.ag-rail{display:none}.shell{margin:0;border-radius:0;border:0;min-height:100vh}.main{padding:0 var(--gutter) 40px}}
 
-/* controls */
-button,.button{font:inherit;font-weight:500;border:1px solid var(--rule);background:var(--paper);color:var(--ink);padding:10px 16px;border-radius:6px;cursor:pointer;text-decoration:none;display:inline-block;line-height:1.5}
-button:hover,.button:hover{border-color:var(--ink-2)}
-button:disabled{opacity:.45;cursor:default}
-button.primary{background:var(--action);color:var(--action-ink);border-color:var(--action)}
-button.primary.big{padding:14px 24px}
-button.critical{color:var(--sev-critical);border-color:currentColor;background:var(--paper)}
-button.link{border-color:transparent;background:none;color:var(--action);padding-left:0;padding-right:0;text-decoration:underline;text-underline-offset:3px}
-select,input{font:inherit;padding:9px 12px;border-radius:6px;border:1px solid var(--rule);background:var(--paper);color:var(--ink);min-width:0;max-width:100%}
+/* inputs on glass */
+input{font:inherit;height:44px;padding:0 16px;border-radius:22px;border:1.5px solid var(--rule);background:var(--paper);color:var(--ink);min-width:0;max-width:100%}
 label{font-weight:500}
 .row{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
 ol.todo{margin:16px 0 0;padding-left:22px;max-width:62ch}ol.todo li{margin:8px 0}ol.todo li+li{border-top:1px solid var(--rule);padding-top:8px}
 
-/* masthead: wordmark left, the chip hanging from the top edge at the right, Quit beside it */
-.mast{position:relative;height:88px;display:flex;align-items:center;border-bottom:1px solid var(--rule)}
+/* masthead: wordmark left, chip hanging from the panel's top edge, Quit beside it */
+.mast{position:relative;height:96px;display:flex;align-items:center;border-bottom:1px solid var(--rule)}
 .wordmark{font-size:var(--fs-section);font-weight:700;letter-spacing:-.01em}
-.mast .ag-chip{width:auto;max-width:min(60vw,520px);right:88px}
+.mast .ag-chip{width:auto;max-width:min(60vw,520px);right:96px}
 .mast .ag-chip .detail{color:var(--rail-ink-2);overflow:hidden;text-overflow:ellipsis}
-#quit{position:absolute;right:0;top:16px;padding:6px 12px;font-size:var(--fs-caption)}
+#quit{position:absolute;right:0;top:26px}
 @media (max-width:560px){
   .mast{height:auto;padding:16px 0 12px;flex-wrap:wrap;gap:10px}
-  /* on a narrow screen the chip is a plain pill in the flow, not a tab hanging from the edge */
   .mast .ag-chip{position:relative;right:auto;top:auto;max-width:100%;--h:52px;padding-left:60px;border-radius:26px;background:var(--rail);order:3;width:100%}
   .mast .ag-chip > svg{display:none}
   .mast .ag-chip .dot{width:32px;height:32px;top:10px}
@@ -67,58 +65,46 @@ ol.todo{margin:16px 0 0;padding-left:22px;max-width:62ch}ol.todo li{margin:8px 0
 .counts div{font-size:var(--fs-caption);color:var(--ink-2)}.counts b{display:block;font-size:var(--fs-section);color:var(--ink);font-weight:600;font-variant-numeric:tabular-nums}
 .notice{margin-top:28px;padding-left:16px;border-left:2px solid var(--ink-2);max-width:62ch}
 
-/* scanning */
-.progress-line{margin-top:20px;font-weight:600}
-progress{display:block;width:100%;max-width:62ch;height:6px;margin-top:10px;appearance:none;-webkit-appearance:none;border:0;border-radius:3px;background:var(--rule);color:var(--ink);overflow:hidden}
-progress::-webkit-progress-bar{background:var(--rule)}
-progress::-webkit-progress-value{background:var(--ink);transition:width .3s}
-progress::-moz-progress-bar{background:var(--ink)}
-.log{margin-top:20px;background:var(--paper-2);border-radius:6px;padding:12px 14px;font-size:var(--fs-caption);line-height:1.6;max-height:240px;overflow:auto;white-space:pre-wrap;font-variant-numeric:tabular-nums}
+/* scanning: the steps as a list, the raw log one click away */
+.progress-line{margin-top:24px;font-weight:600}
+.timeline{list-style:none;margin:16px 0 0;padding:0;max-width:62ch}
+.timeline li{position:relative;padding:6px 0 6px 30px;color:var(--ink-2);font-size:var(--fs-body)}
+.timeline li::before{content:"";position:absolute;left:4px;top:13px;width:12px;height:12px;border-radius:50%;background:var(--sev-ok)}
+.timeline li.now{color:var(--ink);font-weight:600}
+.timeline li.now::before{background:transparent;border:3px solid var(--action);width:8px;height:8px;left:3px;top:12px}
+.timeline li+li::after{content:"";position:absolute;left:9px;top:-10px;height:16px;border-left:2px solid var(--rule)}
+details.rawlog{margin-top:14px}
+details.rawlog summary{cursor:pointer;color:var(--ink-2);font-size:var(--fs-caption)}
+.log{margin-top:10px;background:var(--paper-2);border-radius:12px;padding:12px 14px;font-size:var(--fs-caption);line-height:1.6;max-height:240px;overflow:auto;white-space:pre-wrap;font-variant-numeric:tabular-nums}
 .error{margin-top:16px;padding-left:16px;border-left:2px solid var(--ink-2);max-width:62ch}
 
-/* findings: rows with a severity bar; actions sit in their own column on wide screens */
-.finding{display:grid;grid-template-columns:4px minmax(0,1fr);gap:0 18px;padding:18px 0;border-top:1px solid var(--rule)}
-.finding:first-child{border-top:0}
-.finding .bar{background:var(--rule);border-radius:2px}
-.finding.CRITICAL .bar{background:var(--sev-critical)}.finding.SUSPICIOUS .bar{background:var(--sev-suspicious)}.finding.WATCH .bar{background:var(--sev-watch)}.finding.OK .bar{background:var(--sev-ok)}
-.finding.dealt .bar{background:var(--rule)}
-.finding > div{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:0 24px;align-items:start}
-.finding > div > *{grid-column:1}
-.finding .actions.row{grid-column:2;grid-row:1 / span 3;flex-direction:column;align-items:stretch;width:272px;margin-top:0}
-.finding .actions.row .caption{text-align:left}
-@media (max-width:860px){.finding > div{grid-template-columns:minmax(0,1fr)}.finding .actions.row{grid-column:1;grid-row:auto;flex-direction:row;width:auto;margin-top:14px}}
-.finding h3{font-size:var(--fs-body);font-weight:600;display:flex;gap:4px 10px;align-items:baseline;flex-wrap:wrap}
-.sev{font-size:var(--fs-caption);font-weight:600;text-transform:uppercase;letter-spacing:.04em}
-.CRITICAL .sev{color:var(--sev-critical)}.SUSPICIOUS .sev{color:var(--sev-suspicious)}.WATCH .sev{color:var(--sev-watch)}.OK .sev{color:var(--sev-ok)}
-.finding h3 .pkg{font-size:var(--fs-caption);color:var(--ink-2);font-weight:400;overflow-wrap:anywhere}
-.finding h3 .score{margin-left:auto;font-size:var(--fs-caption);color:var(--ink-2);font-weight:400}
-.reasons{margin:8px 0 0;padding:0;list-style:none}
-.reasons li{padding:2px 0;font-size:var(--fs-caption);display:grid;grid-template-columns:3.2em minmax(0,1fr)}
-.reasons li .pts{color:var(--ink-2);font-variant-numeric:tabular-nums}
-.actions{margin-top:14px}
-.outcome{margin-top:14px;max-width:62ch}
+/* outcomes under a card */
+.outcome{margin-top:12px;max-width:62ch}
 .outcome .said{font-weight:600}
 .steps{margin:8px 0 0;padding:0;list-style:none;font-size:var(--fs-caption)}
 .steps li{padding:2px 0;display:grid;grid-template-columns:7.5em minmax(0,1fr);gap:8px}
 .steps .word{font-weight:600}
 .manual{margin-top:12px}
 .manual ol{margin:6px 0 0;padding-left:22px}.manual li{margin:4px 0}
-.working{margin-top:14px;font-weight:600}
-
-.setting{padding:14px 0;border-top:1px solid var(--rule)}
-.setting:first-child{border-top:0}
-.setting .line{display:flex;justify-content:space-between;gap:16px;align-items:flex-start}
-.setting .sev{margin-right:4px}
-
-details summary{cursor:pointer;color:var(--ink-2);font-size:var(--fs-caption);padding:4px 0}
+.working{margin-top:12px;font-weight:600}
 .steps-more{margin-top:8px}
+.steps-more summary{cursor:pointer;color:var(--ink-2);font-size:var(--fs-caption)}
+
+/* phone settings rows */
+.setting{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px 24px;padding:16px 0;border-top:1px solid var(--rule);align-items:center}
+.setting:first-child{border-top:0}
+.setting .sev{font-size:var(--fs-caption);font-weight:600;text-transform:uppercase;letter-spacing:.04em;margin-right:8px}
+.setting.CRITICAL .sev{color:var(--sev-critical)}.setting.SUSPICIOUS .sev{color:var(--sev-suspicious)}.setting.WATCH .sev{color:var(--sev-watch)}
+.setting .below{grid-column:1 / -1}
+
 .field{display:flex;flex-direction:column;gap:6px;flex:1;min-width:220px}
-footer{padding:40px 0 48px;font-size:var(--fs-caption);color:var(--ink-2)}
+details#advanced summary{cursor:pointer;color:var(--ink-2);font-size:var(--fs-caption);padding:4px 0}
+footer{padding:40px 0 8px;font-size:var(--fs-caption);color:var(--ink-2)}
 .hidden{display:none !important}
 .vh{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
 
-dialog{border:1px solid var(--rule);border-radius:8px;background:var(--paper);color:var(--ink);padding:28px;width:min(560px,calc(100vw - 32px));max-height:calc(100vh - 32px);overflow:auto}
-dialog::backdrop{background:rgba(0,0,0,.45)}
+dialog{border:1px solid var(--glass-border);border-radius:24px;background:var(--glass);-webkit-backdrop-filter:blur(34px) saturate(1.35);backdrop-filter:blur(34px) saturate(1.35);color:var(--ink);padding:32px;width:min(560px,calc(100vw - 32px));max-height:calc(100vh - 32px);overflow:auto;box-shadow:var(--glass-shadow)}
+dialog::backdrop{background:rgba(10,12,17,.35);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
 dialog h2{font-size:var(--fs-section)}
 dialog ol{padding-left:22px;margin:8px 0 0}dialog li{margin:6px 0}
 dialog .row{margin-top:24px}
@@ -126,8 +112,7 @@ dialog .row{margin-top:24px}
 @media (max-width:560px){
   :root{--fs-hero:40px;--fs-title:24px;--gutter:16px}
   .lead{padding-top:32px}
-  .finding h3 .score{margin-left:0}
-  .setting .line{flex-direction:column}
+  .setting{grid-template-columns:1fr}
   .counts{gap:20px}
 }
 @media (prefers-reduced-motion:reduce){*{transition:none !important;scroll-behavior:auto !important}}
@@ -135,7 +120,7 @@ dialog .row{margin-top:24px}
 </head>
 <body>
 
-<!-- 2 · the step rail: numbered rings are real progress; the active step lifts out through the notch -->
+<!-- the step rail: numbered rings are real progress; the active step lifts out through the notch -->
 <nav class="ag-rail" id="rail" aria-label="Steps" style="--active:0">
   <ol>
     <li><span class="n">1</span><span class="label">Connect</span></li>
@@ -146,12 +131,12 @@ dialog .row{margin-top:24px}
   <div class="ag-ball" aria-hidden="true">1<small>Connect</small></div>
 </nav>
 
+<div class="shell">
 <div class="main">
 <header class="mast">
   <div class="wordmark">Android Guardian</div>
-  <!-- 1 · the connection chip, docked into the top edge -->
   <div class="ag-chip off" id="chip" role="status" aria-live="polite"><span class="dot">USB</span><b id="chipWord">Looking…</b><span class="detail" id="chipDetail">for a phone on USB</span></div>
-  <button type="button" id="quit" title="Close Android Guardian">Quit</button>
+  <button type="button" class="ag-btn small" id="quit" title="Close Android Guardian">Quit</button>
 </header>
 
 <main>
@@ -162,8 +147,8 @@ dialog .row{margin-top:24px}
     <p class="muted" id="connSub">Android Guardian reads every installed app and its rights, compares them with public lists of known stalkerware, and looks for spy-like behaviour. Nothing is installed on the phone and nothing leaves this computer.</p>
   </div>
   <ol class="todo" id="connTodo"></ol>
-  <div class="row" style="margin-top:24px">
-    <button type="button" id="recheck">Check again</button>
+  <div class="row" style="margin-top:28px">
+    <button type="button" class="ag-btn" id="recheck">Check again</button>
     <span class="caption">It also checks by itself every few seconds.</span>
   </div>
 </section>
@@ -180,19 +165,20 @@ dialog .row{margin-top:24px}
       <p id="extraSwitchText" style="margin-top:6px"></p>
       <p class="caption" style="margin-top:6px">You can scan and remove apps without it.</p>
     </div>
-    <div class="row" style="margin-top:28px">
-      <button type="button" class="primary big" id="scanBtn">Scan this phone</button>
-      <button type="button" class="link hidden" id="backToResults">Back to the last results</button>
+    <div class="row" style="margin-top:32px">
+      <button type="button" class="ag-btn primary" id="scanBtn" style="height:52px;padding:0 28px;border-radius:26px">Scan this phone</button>
+      <button type="button" class="ag-btn quiet hidden" id="backToResults">Back to the last results</button>
     </div>
   </div>
   <div id="scanningBox" class="hidden">
     <p class="progress-line" id="progressText" aria-live="polite">Starting…</p>
-    <progress id="progressBar" max="1" value="0" aria-labelledby="progressText"></progress>
+    <progress id="progressBar" class="vh" max="1" value="0" aria-labelledby="progressText"></progress>
+    <ol class="timeline" id="timeline" aria-label="Scan steps"></ol>
   </div>
   <div id="failBox" class="hidden">
     <div class="error"><p><b>What happened:</b> <span id="failText"></span></p><p class="caption" style="margin-top:6px">Nothing on the phone was changed.</p></div>
   </div>
-  <div class="log hidden" id="log" role="log" aria-label="Scan details" tabindex="0"></div>
+  <details class="rawlog hidden" id="rawlog"><summary>Every line the scan printed</summary><div class="log" id="log" role="log" aria-label="Scan details" tabindex="0"></div></details>
 </section>
 
 <!-- Results -->
@@ -209,26 +195,27 @@ dialog .row{margin-top:24px}
   <hr>
   <h2>Apps</h2>
   <div id="apps"></div>
-  <div class="row" style="margin-top:12px"><button type="button" class="link" id="toggleAll"></button></div>
+  <div class="row" style="margin-top:16px"><button type="button" class="ag-btn quiet" id="toggleAll"></button></div>
   <hr>
   <h2>Phone settings</h2>
   <div id="settings"></div>
   <hr>
   <h2 id="protectSec" tabindex="-1">Protect this phone</h2>
   <p class="muted measure">Switches the phone's Private DNS to a service that refuses to look up known stalkerware and malware servers, so even an app that was missed cannot report back. Android 9 or newer. Undo any time here or on the phone in Settings › Network › Private DNS.</p>
-  <div class="row" style="margin-top:14px">
+  <div class="row" style="margin-top:18px;gap:16px">
     <label class="vh" for="dnsProvider">DNS service</label>
-    <select id="dnsProvider"></select>
-    <button type="button" class="primary" id="dnsOn">Turn on</button>
-    <button type="button" id="dnsOff">Turn off</button>
+    <select id="dnsProvider" class="vh" tabindex="-1" aria-hidden="true"></select>
+    <div class="ag-seg" id="dnsSeg" role="radiogroup" aria-label="DNS service"></div>
+    <button type="button" class="ag-btn primary" id="dnsOn">Turn on</button>
+    <button type="button" class="ag-btn quiet" id="dnsOff">Turn off</button>
   </div>
   <div id="dnsOut" aria-live="polite"></div>
   <hr>
   <div class="row">
-    <a class="button" id="saveReport" href="/api/report.html" download>Save report</a>
-    <button type="button" id="rescan">Scan again</button>
+    <a class="ag-btn" id="saveReport" href="/api/report.html" download>Save report</a>
+    <button type="button" class="ag-btn" id="rescan">Scan again</button>
   </div>
-  <p class="caption" style="margin-top:12px">When you are done, turn USB debugging off on the phone: Settings › Developer options › USB debugging.</p>
+  <p class="caption" style="margin-top:14px">When you are done, turn USB debugging off on the phone: Settings › Developer options › USB debugging.</p>
 </section>
 
 <!-- Closed -->
@@ -249,30 +236,31 @@ dialog .row{margin-top:24px}
       <label for="vtKey">VirusTotal API key (optional)</label>
       <input id="vtKey" type="password" autocomplete="off" spellcheck="false" placeholder="Paste the key here">
     </div>
-    <button type="button" id="vtSave">Save key</button>
-    <button type="button" id="vtClear">Remove key</button>
+    <button type="button" class="ag-btn" id="vtSave">Save key</button>
+    <button type="button" class="ag-btn quiet" id="vtClear">Remove key</button>
   </div>
   <p class="caption" id="vtNote" style="margin-top:8px" aria-live="polite"></p>
   <p class="caption measure" style="margin-top:4px">With a free key from virustotal.com, the scan also asks VirusTotal whether any app file that did not come from a store is known malware. Only the file's fingerprint is sent, never the file.</p>
   <div class="row" style="margin-top:20px">
-    <button type="button" id="iocBtn">Update threat list now</button>
+    <button type="button" class="ag-btn small" id="iocBtn">Update threat list now</button>
     <span class="caption" id="iocNote" aria-live="polite">It updates itself every week.</span>
   </div>
-  <div class="row" style="margin-top:20px">
-    <button type="button" id="openReports">Open reports folder</button>
+  <div class="row" style="margin-top:14px">
+    <button type="button" class="ag-btn small" id="openReports">Open reports folder</button>
     <span class="caption" id="reportsPath" style="overflow-wrap:anywhere"></span>
   </div>
 </details>
 
 <footer>Android Guardian <span id="version"></span> · Free and open source (MIT) · by Abdulraham Amer · Known-threat data from the Echap stalkerware-indicators project · <a href="https://github.com/REPO_PLACEHOLDER" target="_blank" rel="noopener noreferrer">Source code</a></footer>
 </div>
+</div>
 
 <dialog id="dlg" aria-labelledby="dlgTitle">
   <h2 id="dlgTitle"></h2>
   <div id="dlgBody"></div>
   <div class="row">
-    <button type="button" class="primary" id="dlgOk">OK</button>
-    <button type="button" id="dlgCancel">Cancel</button>
+    <button type="button" class="ag-btn primary" id="dlgOk">OK</button>
+    <button type="button" class="ag-btn quiet" id="dlgCancel">Cancel</button>
   </div>
 </dialog>
 
@@ -287,7 +275,7 @@ const phoneName = (d) => d ? `${maker(d.manufacturer)} ${d.model || ''}`.trim() 
 const LEVEL_WORD = { CRITICAL: 'Critical', SUSPICIOUS: 'Suspicious', WATCH: 'Watch', OK: 'OK' };
 
 // Everything the page knows. Re-built from /api/status after a refresh, so reloading the tab never loses the state.
-const ui = { status: null, result: null, showAll: false, pollTimer: null, closed: false, view: null, hideFailure: false, errors: {}, drawn: '' };
+const ui = { status: null, result: null, showAll: false, pollTimer: null, closed: false, view: null, hideFailure: false, errors: {}, drawn: '', logLines: [] };
 
 async function api(path, body) {
   const opts = body ? { method: 'POST', headers: { 'content-type': 'application/json', 'x-guardian': '1' }, body: JSON.stringify(body) } : {};
@@ -309,7 +297,7 @@ function setTitle(t) { document.title = t ? `${t} · Android Guardian` : 'Androi
 // ---------- rail: which step is lifted, and how full each ring is ----------
 function syncRail() {
   const rail = $('rail');
-  if (!rail.activate) return; // components.js not ready yet; init() calls activate itself
+  if (!rail.activate) return;
   const s = ui.status, r = s?.readiness, ready = r?.state === 'ready';
   rail.setProgress(0, ready || ui.result ? 100 : 0);
   const p = s?.progress;
@@ -399,7 +387,7 @@ function showReady(r) {
   $('scanBtn').textContent = 'Scan this phone';
   $('scanBtn').disabled = false;
   $('backToResults').classList.toggle('hidden', !ui.result);
-  $('log').classList.add('hidden');
+  $('rawlog').classList.add('hidden');
   setTitle('Ready');
   show('viewScan', 'scanTitle');
 }
@@ -412,17 +400,26 @@ function showScanning() {
   $('failBox').classList.add('hidden');
   $('scanningBox').classList.remove('hidden');
   renderProgress(p);
-  $('log').classList.remove('hidden');
+  $('rawlog').classList.remove('hidden');
   setTitle(p ? `Scanning (${p.step} of ${p.total})` : 'Scanning');
   show('viewScan', 'scanTitle');
 }
 function renderProgress(p) {
-  if (!p) { $('progressText').textContent = 'Starting…'; $('progressBar').value = 0; syncRail(); return; }
+  if (!p) { $('progressText').textContent = 'Starting…'; $('progressBar').value = 0; renderTimeline(null); syncRail(); return; }
   $('progressText').textContent = `Step ${p.step} of ${p.total}: ${p.label}`;
   $('progressBar').max = p.total;
   $('progressBar').value = p.step;
   if (ui.view === 'viewScan') setTitle(`Scanning (${p.step} of ${p.total})`);
+  renderTimeline(p);
   syncRail();
+}
+// The timeline is the scan's own log lines: every finished line a filled dot, the current step a ring.
+function renderTimeline(p) {
+  const done = ui.logLines.filter((t) => !/^(Using|Indicators read|Scan finished)/.test(t));
+  const items = done.map((t) => `<li>${esc(t)}</li>`);
+  if (p?.label && !done.some((t) => t === p.label)) items.push(`<li class="now">${esc(p.label)}</li>`);
+  else if (items.length) items[items.length - 1] = items[items.length - 1].replace('<li>', '<li class="now">');
+  $('timeline').innerHTML = items.join('');
 }
 
 function showFailed(message) {
@@ -437,7 +434,7 @@ function showFailed(message) {
   $('scanBtn').textContent = 'Try again';
   $('scanBtn').disabled = r.state !== 'ready';
   $('backToResults').classList.toggle('hidden', !ui.result);
-  $('log').classList.toggle('hidden', !$('log').textContent);
+  $('rawlog').classList.toggle('hidden', !ui.logLines.length);
   setTitle('Scan did not finish');
   show('viewScan', 'scanTitle');
 }
@@ -456,15 +453,19 @@ function showClosed(title, sub) {
 
 // ---------- log ----------
 function syncLog(lines) {
-  const l = $('log');
   if (!lines) return;
-  l.textContent = lines.map((x) => x.text).join('\n');
+  ui.logLines = lines.map((x) => x.text);
+  const l = $('log');
+  l.textContent = ui.logLines.join('\n');
   l.scrollTop = l.scrollHeight;
+  if (ui.view === 'viewScan') renderTimeline(ui.status?.progress);
 }
 function appendLog(text) {
+  ui.logLines.push(text);
   const l = $('log');
   l.textContent += (l.textContent ? '\n' : '') + text;
   l.scrollTop = l.scrollHeight;
+  if (ui.view === 'viewScan') renderTimeline(ui.status?.progress);
 }
 
 // ---------- results ----------
@@ -500,7 +501,7 @@ function renderResults(force = true) {
 
   const list = ui.showAll ? res.apps : res.flagged;
   $('toggleAll').textContent = ui.showAll ? 'Show only flagged apps' : `Show all ${res.apps.length} apps`;
-  $('apps').innerHTML = list.length ? list.map(appRow).join('') : '<p class="muted">Nothing flagged. Every app on this phone looks normal.</p>';
+  $('apps').innerHTML = list.length ? list.map(appCard).join('') : '<p class="muted">Nothing flagged. Every app on this phone looks normal.</p>';
   renderSettings();
   renderDns();
   setTitle(s.critical ? `${s.critical} critical` : s.suspicious ? `${s.suspicious} to check` : 'Results');
@@ -508,20 +509,42 @@ function renderResults(force = true) {
 }
 
 function appName(a) { return a.label || a.pkg; }
-function reasonList(a) {
-  const items = a.reasons.map((r) => `<li><span class="pts">+${esc(r.pts)}</span><span>${esc(r.text)}</span></li>`);
+
+// One plain sentence per app, from what the rules found. Falls back to the strongest reason in its own words.
+const SAYS = {
+  ioc: (r) => { const m = r.text.match(/\(([^)]+)\)\s*$/); return `Known stalkerware${m ? ` (${m[1]})` : ''}.`; },
+  vt: () => 'Flagged as malware by virus scanners.',
+  remote: () => 'A remote-control app: fine if you installed it yourself.',
+  monitor: () => 'A monitoring app: make sure you agreed to it.',
+  hidden: () => 'Hidden from you.',
+  access: () => 'Reads everything on your screen.',
+  notif: () => 'Reads your notifications and messages.',
+  admin: () => 'Can lock or wipe the phone.',
+  combo: () => 'Holds several kinds of spying access at once.',
+  sideload: () => 'Did not come from an app store.',
+  adb: () => 'Was installed from a computer.',
+  mimic: () => 'Pretends to be part of the system.',
+  random: () => 'Has a made-up name, typical of malware.',
+  upload: () => 'Sends out far more data than it receives.',
+};
+function says(a) {
+  const parts = [];
+  for (const r of a.reasons) { const f = SAYS[r.tag]; if (f && parts.length < 3) { const t = f(r); if (!parts.includes(t)) parts.push(t); } }
+  if (!parts.length && a.reasons[0]) parts.push(a.reasons[0].text.replace(/\s*\(.*$/, '').replace(/:.*$/, '') + '.');
+  if (!parts.length) return 'Nothing unusual.';
+  return parts.join(' ');
+}
+function whyList(a) {
+  const items = a.reasons.map((r) => `<li>${esc(r.text)}</li>`);
   const vt = a.virusTotal;
   if (vt?.known) {
     const link = /^https:\/\//.test(String(vt.link || '')) ? ` · <a href="${esc(vt.link)}" target="_blank" rel="noopener noreferrer">details</a>` : '';
-    items.push(`<li><span class="pts"></span><span>VirusTotal: ${esc(vt.malicious)} of ${esc(vt.total)} virus scanners call it malicious${link}</span></li>`);
+    items.push(`<li>VirusTotal: ${esc(vt.malicious)} of ${esc(vt.total)} virus scanners call it malicious${link}</li>`);
   }
-  if (!items.length) return '<p class="caption" style="margin-top:6px">Nothing unusual.</p>';
-  // the strongest four reasons carry the message; the rest is detail, one click away
-  if (items.length <= 5) return `<ul class="reasons">${items.join('')}</ul>`;
-  return `<ul class="reasons">${items.slice(0, 4).join('')}</ul><details class="steps-more"><summary>All ${items.length} reasons</summary><ul class="reasons">${items.slice(4).join('')}</ul></details>`;
+  return items.length ? `<details class="why"><summary>Why (${items.length} ${items.length === 1 ? 'reason' : 'reasons'})</summary><ul>${items.join('')}</ul></details>` : '';
 }
 
-function appRow(a) {
+function appCard(a) {
   const busy = ui.status?.busy;
   const act = a.action;
   const dealt = act && ['removed', 'disabled', 'suspended', 'blocked'].includes(act.outcome);
@@ -535,21 +558,26 @@ function appRow(a) {
     const canAct = a.level !== 'OK' && (!act || act.outcome === 'failed');
     const locked = !!busy || ui.status?.scanning;
     if (canAct) {
-      actions = `<div class="actions row">
-        <button type="button" class="critical" data-act="remove" data-pkg="${esc(a.pkg)}" ${locked ? 'disabled' : ''} aria-label="Remove ${esc(appName(a))} from the phone">Remove from phone</button>
-        <button type="button" data-act="block" data-pkg="${esc(a.pkg)}" ${locked ? 'disabled' : ''} aria-label="Keep ${esc(appName(a))}, but take its rights away">Keep, but take its rights away</button>
+      actions = `<div class="acts">
+        <button type="button" class="ag-btn danger" data-act="remove" data-pkg="${esc(a.pkg)}" ${locked ? 'disabled' : ''} aria-label="Remove ${esc(appName(a))} from the phone">Remove from phone</button>
+        <button type="button" class="ag-btn" data-act="block" data-pkg="${esc(a.pkg)}" ${locked ? 'disabled' : ''} aria-label="Keep ${esc(appName(a))}, but take its rights away">Keep, but disarm it</button>
         ${a.system ? '<span class="caption">This came with the phone: it will be turned off, not deleted.</span>' : ''}
       </div>`;
     }
     if (act?.outcome === 'blocked' && ui.status?.features?.undoBlock) {
-      actions = `<div class="actions row"><button type="button" data-act="undo-block" data-pkg="${esc(a.pkg)}" ${busy ? 'disabled' : ''} aria-label="Undo: let ${esc(appName(a))} open again">Undo (let the app open again)</button></div>`;
+      actions = `<div class="acts"><button type="button" class="ag-btn" data-act="undo-block" data-pkg="${esc(a.pkg)}" ${busy ? 'disabled' : ''} aria-label="Undo: let ${esc(appName(a))} open again">Undo (let the app open again)</button></div>`;
     }
   }
   const status = { removed: ' · removed', disabled: ' · turned off', suspended: ' · paused', blocked: ' · rights taken away' }[act?.outcome] || '';
-  return `<div class="finding ${esc(a.level)}${dealt ? ' dealt' : ''}" id="app-${esc(a.pkg)}"><div class="bar"></div><div>
-    <h3><span class="sev">${LEVEL_WORD[a.level] || esc(a.level)}${status}</span> ${title}<span class="score">score ${esc(a.score)}</span></h3>
-    ${dealt && act.outcome === 'removed' ? '' : reasonList(a)}
-    ${lower}${actions}</div></div>`;
+  const score = Math.max(0, Math.min(100, Number(a.score) || 0));
+  return `<article class="ag-app ${esc(a.level)}${dealt ? ' dealt' : ''}" id="app-${esc(a.pkg)}">
+    <div class="ag-score ${esc(a.level)}" style="--p:${score}" aria-label="score ${score} of 100"><svg viewBox="0 0 100 100" aria-hidden="true"><circle class="track" cx="50" cy="50" r="44"/><circle class="arc" cx="50" cy="50" r="44" pathLength="100"/></svg><b>${score}</b></div>
+    <div>
+      <h3><span class="sev">${LEVEL_WORD[a.level] || esc(a.level)}${status}</span> ${title}</h3>
+      ${dealt && act.outcome === 'removed' ? '' : `<p class="says">${esc(says(a))}</p>${whyList(a)}`}
+      ${lower}
+    </div>
+    ${actions}</article>`;
 }
 
 function outcomeBlock(act, a) {
@@ -568,7 +596,6 @@ function stepsList(steps) {
   if (!steps?.length) return '';
   const list = `<ul class="steps" aria-label="What was done">${steps.map((s) => `<li><span class="word">${s.ok ? 'Done' : 'Did not work'}</span><span>${esc(s.action)}${s.text ? ` · ${esc(s.text)}` : ''}</span></li>`).join('')}</ul>`;
   if (steps.length <= 6) return list;
-  // a long list is detail, not the message: keep it one click away
   const failed = steps.filter((s) => !s.ok).length;
   return `<details class="steps-more"><summary>Every step on the phone (${steps.length}, ${failed ? `${failed} did not work` : 'all done'})</summary>${list}</details>`;
 }
@@ -584,10 +611,10 @@ function renderSettings() {
     ? res.deviceFindings.map((f, i) => {
       const done = res.other?.[`fix:${i}`];
       const working = busy && busy.key === `fix:${i}`;
-      const btn = f.fix && !done?.ok ? `<button type="button" data-act="fix" data-index="${i}" ${busy ? 'disabled' : ''} aria-label="Fix: ${esc(f.text)}">Fix</button>` : '';
+      const btn = f.fix && !done?.ok ? `<button type="button" class="ag-btn small" data-act="fix" data-index="${i}" ${busy ? 'disabled' : ''} aria-label="Fix: ${esc(f.text)}">Fix it</button>` : '';
       const err = ui.errors[`fix:${i}`];
       const below = working ? `<p class="working">Changing the setting…</p>` : err ? `<div class="outcome"><p class="said">That did not work: ${esc(err)}</p></div>` : done ? `<div class="outcome"><p class="said">${done.demo ? 'Nothing was changed: this is a demo recording.' : done.ok ? 'Fixed.' : 'The phone refused this change.'}</p>${stepsList(done.steps)}${manualList(done.manualSteps)}</div>` : '';
-      return `<div class="setting ${esc(f.level)}"><div class="line"><div><span class="sev">${LEVEL_WORD[f.level] || esc(f.level)}</span> ${esc(f.text)}</div>${btn}</div>${below}</div>`;
+      return `<div class="setting ${esc(f.level)}"><div><span class="sev">${LEVEL_WORD[f.level] || esc(f.level)}</span>${esc(f.text)}</div>${btn}${below ? `<div class="below">${below}</div>` : ''}</div>`;
     }).join('')
     : '<p class="muted">Nothing to report.</p>';
 }
@@ -602,19 +629,29 @@ function renderDns() {
   syncRail();
 }
 
+// The provider choice is a segmented control; the hidden select keeps the value the rest of the page reads.
 function fillDnsOptions(dns) {
   const sel = $('dnsProvider');
   if (sel.options.length || !dns) return;
-  for (const [k, v] of Object.entries(dns)) { const o = document.createElement('option'); o.value = k; o.textContent = v.label; sel.append(o); }
+  const seg = $('dnsSeg');
+  for (const [k, v] of Object.entries(dns)) {
+    const o = document.createElement('option'); o.value = k; o.textContent = v.label; sel.append(o);
+    const b = document.createElement('button'); b.type = 'button'; b.setAttribute('role', 'radio'); b.dataset.value = k;
+    b.textContent = v.label.replace(/\s*\(.*$/, ''); b.title = v.label;
+    b.onclick = () => { sel.value = k; seg.querySelectorAll('button').forEach((x) => x.setAttribute('aria-pressed', String(x === b))); seg.querySelectorAll('button').forEach((x) => x.setAttribute('aria-checked', String(x === b))); };
+    seg.append(b);
+  }
+  seg.querySelector('button')?.click();
 }
 
 // ---------- confirm dialog ----------
-function ask({ title, body, ok }) {
+function ask({ title, body, ok, danger = false }) {
   return new Promise((resolve) => {
     const d = $('dlg');
     $('dlgTitle').textContent = title;
     $('dlgBody').innerHTML = body;
     $('dlgOk').textContent = ok;
+    $('dlgOk').className = 'ag-btn ' + (danger ? 'danger' : 'primary');
     const done = (v) => { d.close(); resolve(v); };
     $('dlgOk').onclick = () => done(true);
     $('dlgCancel').onclick = () => done(false);
@@ -633,6 +670,7 @@ async function act(kind, pkg) {
     const ok = await ask({
       title: `Remove "${name}" from the phone?`,
       ok: `Remove ${name.length > 24 ? 'it' : name}`,
+      danger: true,
       body: `<p style="margin-top:12px">What will happen, in this order:</p><ol>
         <li>Its special rights (accessibility, device administrator, notification access) are switched off, so it cannot block the removal.</li>
         <li>The app is stopped${sys ? '' : ', uninstalled, and its data on the phone is deleted'}.</li>
@@ -643,8 +681,8 @@ async function act(kind, pkg) {
     if (!ok) return;
   } else if (kind === 'block') {
     const ok = await ask({
-      title: `Take away the rights of "${name}"?`,
-      ok: 'Take its rights away',
+      title: `Disarm "${name}"?`,
+      ok: 'Disarm it',
       body: `<p style="margin-top:12px">The app stays installed, but:</p><ol>
         <li>Its special rights (accessibility, device administrator, notification access) are switched off.</li>
         <li>Its access to the microphone, camera, messages, call history, location and contacts is taken away.</li>
@@ -664,7 +702,6 @@ async function afterAction(focusRowId) {
   try { ui.status = await api('/api/status'); await loadResult(); } catch { /* the poll will catch up */ }
   if (ui.status) ui.status.busy = null;
   renderResults();
-  // the row was redrawn: put keyboard focus on what happened, not back at the top of the page
   const row = focusRowId && document.getElementById(focusRowId);
   if (row) { const t = row.querySelector('.outcome .said, button'); if (t) { t.tabIndex = t.tagName === 'BUTTON' ? 0 : -1; t.focus(); } }
 }
@@ -687,6 +724,7 @@ async function dns(on) {
 async function startScan() {
   $('scanBtn').disabled = true;
   ui.hideFailure = false;
+  ui.logLines = [];
   $('log').textContent = '';
   try {
     await api('/api/scan', {});
@@ -718,7 +756,6 @@ document.addEventListener('click', (e) => {
   if (b.dataset.act === 'fix') fix(Number(b.dataset.index));
   else act(b.dataset.act, b.dataset.pkg);
 });
-// rail steps: go to a step that exists; the Protect step scrolls to the protect section of the results
 $('rail').addEventListener('ag:step', (e) => {
   const i = e.detail.index, s = ui.status;
   if (!s || ui.closed) return;
@@ -776,13 +813,12 @@ function connectEvents() {
   es.addEventListener('action', (e) => {
     const d = JSON.parse(e.data);
     if (!ui.status || !ui.result) return;
-    if (d.phase === 'done') return; // the tab that asked reloads the result; other tabs catch up below
+    if (d.phase === 'done') return;
     ui.status.busy = d;
     if (d.pkg) { const row = document.getElementById('app-' + d.pkg); const w = row?.querySelector('.working'); if (w) w.textContent = `${d.kind === 'remove' ? 'Removing' : d.kind === 'block' ? 'Taking its rights away' : 'Undoing'} · step ${d.n || 1}: ${d.text}…`; else renderResults(); }
     else if (d.key === 'dns') renderDns(); else renderSettings();
   });
   es.addEventListener('action', (e) => { const d = JSON.parse(e.data); if (d.phase === 'done' && ui.result) setTimeout(catchUp, 300); });
-  // another tab (or this one) finished a change: redraw only if what is shown is out of date
   async function catchUp() { try { ui.status = await api('/api/status'); await loadResult(); renderResults(false); } catch { /* next poll */ } }
   es.addEventListener('quit', () => { es.close(); showClosed('Android Guardian has closed', 'You can close this tab. To use it again, open Android Guardian from the Start menu or the Desktop.'); });
   es.onerror = () => { if (!ui.closed) setTimeout(refreshStatus, 1000); };

@@ -1,6 +1,6 @@
 {
   "name": "android-guardian",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Find and remove spyware, stalkerware and remote-access trojans on an Android phone from a Windows PC over USB. No root, nothing installed on the phone.",
   "author": "Abdulraham Amer",
   "license": "MIT",

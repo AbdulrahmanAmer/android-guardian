@@ -14,6 +14,16 @@ Contents: [Install](#install) · [Prepare the phone](#prepare-the-phone) · [Use
 [What it finds](#what-it-finds-and-what-it-does-not) · [Privacy](#privacy) · [SmartScreen](#windows-protected-your-pc-smartscreen) ·
 [FAQ](#faq) · [Command line](#command-line) · [Build](#build-from-source) · [Licence](#licence)
 
+![Results of a scan: two threats found, each with a score ring, one plain sentence and the Remove and Disarm buttons](docs/screenshots/results-light.png)
+
+<details><summary>More screens: dark mode, connecting, scanning</summary>
+
+![The same results in dark mode](docs/screenshots/results-dark.png)
+![Connect your phone: the steps to turn on USB debugging](docs/screenshots/connect.png)
+![Scanning: the steps as a list with the current one ringed](docs/screenshots/scanning.png)
+
+</details>
+
 ---
 
 ## Install

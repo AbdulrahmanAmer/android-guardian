@@ -5,6 +5,25 @@ Versions follow [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [0.2.0] - 2026-10-31
+
+The interface, redesigned.
+
+### Interface
+- A soft colour field behind one frosted glass panel; light and dark follow the system.
+- A step rail (Connect, Scan, Results, Protect) with rings that show real progress and the active step lifted out; the connection chip hangs from the panel's top edge.
+- Each app is a card with a score ring (0 to 100 in the severity colour), one plain sentence saying what it does, and the full reasons one click away.
+- One family of pill buttons; the DNS provider is a segmented choice instead of a dropdown; the confirmation dialog matches.
+- Scanning shows the steps as a list with the current step ringed; the raw log is folded away.
+- Idle rings no longer show a stray dot; narrow screens get a plain chip and no rail.
+- The design system lives in `design/` (tokens, components, demos, renders, traced reference outline) and is inlined into the single-file bundle at build time.
+
+### Command line
+- `status` exits 2 when no phone is ready, the same code `scan` uses.
+
+### Build
+- The exe resolves its own path through symlinks, so a portable install started via a link still finds the bundled adb.
+
 ## [0.1.0] - 2026-10-31
 
 First public release.

@@ -68,6 +68,48 @@
 .ag-reasons{margin:6px 0 0;padding:0;list-style:none;font-size:var(--fs-caption)}
 .ag-reasons li::before{content:"+" attr(data-pts) "  ";color:var(--ink-2);font-variant-numeric:tabular-nums}
 .ag-actions{display:flex;flex-direction:column;gap:8px;width:272px}
-.ag-btn{font:inherit;font-weight:500;border:1px solid var(--rule);background:var(--paper);color:var(--ink);padding:10px 16px;border-radius:6px;cursor:pointer}
-.ag-btn.primary{background:var(--action);color:var(--action-ink);border-color:var(--action)}
-.ag-btn.critical{color:var(--sev-critical);border-color:currentColor}
+
+/* ---------- buttons: one family of pills, four roles ----------
+   primary = the rail surface, lifted like the ball · danger = the same pill in the critical colour ·
+   secondary = outlined pill · quiet = text. Same height everywhere (44 px); small = 36 px. */
+.ag-btn{font:inherit;font-size:var(--fs-body);font-weight:600;line-height:1;height:44px;padding:0 22px;border-radius:22px;border:1.5px solid var(--rule);background:var(--paper);color:var(--ink);cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:8px;white-space:nowrap;text-decoration:none;transition:transform .15s var(--ease),box-shadow .15s var(--ease),border-color .15s}
+.ag-btn:hover{border-color:var(--ink-2)}
+.ag-btn:disabled{opacity:.45;cursor:default;transform:none;box-shadow:none}
+.ag-btn.primary{background:var(--rail);color:var(--rail-ink);border-color:var(--rail);box-shadow:var(--lift-shadow,0 8px 20px rgba(0,0,0,.18))}
+.ag-btn.primary:hover:not(:disabled){transform:translateY(-1px)}
+.ag-btn.danger{background:var(--sev-critical);color:#fff;border-color:var(--sev-critical);box-shadow:0 8px 20px rgba(179,38,30,.28)}
+.ag-btn.danger:hover:not(:disabled){transform:translateY(-1px)}
+.ag-btn.quiet{border-color:transparent;background:none;color:var(--action);padding:0 4px;height:auto;font-weight:500;text-decoration:underline;text-underline-offset:3px}
+.ag-btn.small{height:36px;padding:0 16px;font-size:var(--fs-caption);border-radius:18px}
+:root[data-theme="dark"] .ag-btn.danger{color:#1a0505}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]) .ag-btn.danger{color:#1a0505}}
+
+/* segmented control: outlined pill holding equal options; the chosen one is filled with the rail surface */
+.ag-seg{display:inline-flex;border:1.5px solid var(--rule);border-radius:22px;padding:3px;gap:2px;background:var(--paper);max-width:100%;flex-wrap:wrap}
+.ag-seg button{font:inherit;font-size:var(--fs-caption);font-weight:600;height:36px;padding:0 16px;border-radius:18px;border:0;background:none;color:var(--ink-2);cursor:pointer;white-space:nowrap}
+.ag-seg button[aria-pressed="true"]{background:var(--rail);color:var(--rail-ink)}
+
+/* ---------- score ring: the rail's ring at card size, filled to the score (0–100) in the severity colour ---------- */
+.ag-score{--p:0;--c:var(--ink-2);position:relative;width:64px;height:64px;flex:none;display:grid;place-items:center}
+.ag-score svg{position:absolute;inset:0;width:100%;height:100%;transform:rotate(-90deg)}
+.ag-score .track{fill:none;stroke:var(--paper-2);stroke-width:12}
+.ag-score .arc{fill:none;stroke:var(--c);stroke-width:12;stroke-linecap:round;stroke-dasharray:var(--p) 100}
+.ag-score b{position:relative;font-size:var(--fs-section);font-weight:700;font-variant-numeric:tabular-nums;color:var(--c);line-height:1}
+.ag-score.CRITICAL{--c:var(--sev-critical)}.ag-score.SUSPICIOUS{--c:var(--sev-suspicious)}.ag-score.WATCH{--c:var(--sev-watch)}.ag-score.OK{--c:var(--sev-ok)}
+
+/* ---------- app card: ring · name and one plain sentence · actions ---------- */
+.ag-app{display:grid;grid-template-columns:64px minmax(0,1fr) auto;gap:0 20px;padding:22px 0;border-top:1px solid var(--rule);align-items:start}
+.ag-app:first-child{border-top:0}
+.ag-app h3{margin:0;font-size:var(--fs-section);font-weight:600;line-height:1.25;display:flex;gap:4px 10px;align-items:baseline;flex-wrap:wrap}
+.ag-app h3 .pkg{font-size:var(--fs-caption);color:var(--ink-2);font-weight:400;overflow-wrap:anywhere}
+.ag-app .sev{font-size:var(--fs-caption);font-weight:600;text-transform:uppercase;letter-spacing:.04em}
+.ag-app.CRITICAL .sev{color:var(--sev-critical)}.ag-app.SUSPICIOUS .sev{color:var(--sev-suspicious)}.ag-app.WATCH .sev{color:var(--sev-watch)}.ag-app.OK .sev{color:var(--sev-ok)}
+.ag-app .says{margin:6px 0 0;max-width:58ch}
+.ag-app .why{margin-top:10px}
+.ag-app .why summary{cursor:pointer;color:var(--ink-2);font-size:var(--fs-caption);padding:2px 0;width:max-content}
+.ag-app .why ul{margin:8px 0 0;padding-left:18px;font-size:var(--fs-caption);color:var(--ink)}
+.ag-app .why li{margin:3px 0}
+.ag-app .acts{display:flex;flex-direction:column;gap:8px;width:272px;align-items:stretch}
+.ag-app .acts .ag-btn{width:100%}
+.ag-app.dealt .ag-score{--c:var(--ink-2)}
+@media(max-width:860px){.ag-app{grid-template-columns:56px minmax(0,1fr)}.ag-score{width:56px;height:56px}.ag-app .acts{grid-column:1 / -1;width:auto;flex-direction:row;flex-wrap:wrap;margin-top:14px}.ag-app .acts .ag-btn{width:auto}}

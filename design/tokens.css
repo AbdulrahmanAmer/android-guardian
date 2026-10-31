@@ -1,7 +1,16 @@
 /* Android Guardian design tokens. One family, five sizes, one action colour, severity colours mean severity only.
-   The rail is the single dark surface; it inverts in dark mode so it never sits dark-on-dark. */
+   Surfaces: --bg is the soft colour field behind everything; --glass is the frosted panel that holds the content
+   (the background seeps through a strong blur); --paper is what sits on the glass (inputs, dialogs); the rail is the
+   single dark surface and inverts in dark mode so it never sits dark-on-dark. */
 :root{
-  --paper:#ffffff;--paper-2:#f3f4f6;--ink:#111318;--ink-2:#5b6472;--rule:#dfe3e8;
+  --paper:#ffffff;--paper-2:rgba(17,19,24,.06);--ink:#111318;--ink-2:#5b6472;--rule:rgba(17,19,24,.12);
+  --bg:#eef1f6;
+  --bg-field:
+    radial-gradient(60% 50% at 8% 12%, #cfe0ff 0%, rgba(207,224,255,0) 70%),
+    radial-gradient(50% 45% at 92% 8%, #ffd9e8 0%, rgba(255,217,232,0) 70%),
+    radial-gradient(55% 55% at 85% 90%, #ffe7c9 0%, rgba(255,231,201,0) 70%),
+    radial-gradient(45% 45% at 15% 95%, #d6f3e6 0%, rgba(214,243,230,0) 70%);
+  --glass:rgba(255,255,255,.58);--glass-border:rgba(255,255,255,.75);--glass-shadow:0 30px 80px rgba(30,40,70,.18);
   --rail:#111318;--rail-ink:#ffffff;--rail-ink-2:#8b94a1;--rail-track:#2a2f37;
   --action:#1a56db;--action-ink:#ffffff;
   --sev-critical:#b3261e;--sev-suspicious:#b45309;--sev-watch:#8a6d00;--sev-ok:#1b7f3b;
@@ -9,13 +18,27 @@
   --gutter:32px;--ease:cubic-bezier(.2,.8,.2,1);
 }
 :root[data-theme="dark"]{
-  --paper:#0e1013;--paper-2:#181b20;--ink:#eceef1;--ink-2:#9aa3af;--rule:#262b33;
+  --paper:#15181e;--paper-2:rgba(236,238,241,.08);--ink:#eceef1;--ink-2:#9aa3af;--rule:rgba(236,238,241,.12);
+  --bg:#0a0c11;
+  --bg-field:
+    radial-gradient(60% 50% at 8% 12%, #1c2d55 0%, rgba(28,45,85,0) 70%),
+    radial-gradient(50% 45% at 92% 8%, #4a1f45 0%, rgba(74,31,69,0) 70%),
+    radial-gradient(55% 55% at 85% 90%, #4a3418 0%, rgba(74,52,24,0) 70%),
+    radial-gradient(45% 45% at 15% 95%, #11403a 0%, rgba(17,64,58,0) 70%);
+  --glass:rgba(16,19,25,.62);--glass-border:rgba(255,255,255,.1);--glass-shadow:0 30px 80px rgba(0,0,0,.45);
   --rail:#eceef1;--rail-ink:#111318;--rail-ink-2:#6b7482;--rail-track:#cfd4db;
   --action:#5b8def;--action-ink:#0b1020;
   --sev-critical:#ef6a62;--sev-suspicious:#f0a04b;--sev-watch:#d9b94a;--sev-ok:#5fc07e;
 }
 @media(prefers-color-scheme:dark){:root:not([data-theme="light"]){
-  --paper:#0e1013;--paper-2:#181b20;--ink:#eceef1;--ink-2:#9aa3af;--rule:#262b33;
+  --paper:#15181e;--paper-2:rgba(236,238,241,.08);--ink:#eceef1;--ink-2:#9aa3af;--rule:rgba(236,238,241,.12);
+  --bg:#0a0c11;
+  --bg-field:
+    radial-gradient(60% 50% at 8% 12%, #1c2d55 0%, rgba(28,45,85,0) 70%),
+    radial-gradient(50% 45% at 92% 8%, #4a1f45 0%, rgba(74,31,69,0) 70%),
+    radial-gradient(55% 55% at 85% 90%, #4a3418 0%, rgba(74,52,24,0) 70%),
+    radial-gradient(45% 45% at 15% 95%, #11403a 0%, rgba(17,64,58,0) 70%);
+  --glass:rgba(16,19,25,.62);--glass-border:rgba(255,255,255,.1);--glass-shadow:0 30px 80px rgba(0,0,0,.45);
   --rail:#eceef1;--rail-ink:#111318;--rail-ink-2:#6b7482;--rail-track:#cfd4db;
   --action:#5b8def;--action-ink:#0b1020;
   --sev-critical:#ef6a62;--sev-suspicious:#f0a04b;--sev-watch:#d9b94a;--sev-ok:#5fc07e;
