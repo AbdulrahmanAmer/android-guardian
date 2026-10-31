@@ -17,6 +17,8 @@ import { htmlReport, consoleReport } from '../lib/report.mjs';
 const here = dirname(fileURLToPath(import.meta.url));
 const fixtureDir = join(here, 'fixtures', 'infected');
 if (!existsSync(join(fixtureDir, 'commands.json'))) execFileSync(process.execPath, [join(here, 'make-fixture.mjs')], { stdio: 'inherit', timeout: 60_000 });
+// lib/ui-bundle.mjs is generated from ui/index.html and not committed; the server tests import it.
+if (!existsSync(join(here, '..', 'lib', 'ui-bundle.mjs'))) execFileSync(process.execPath, [join(here, '..', 'build.mjs'), '--ui-only'], { stdio: 'inherit', timeout: 60_000 });
 
 let passed = 0;
 const failures = [];
