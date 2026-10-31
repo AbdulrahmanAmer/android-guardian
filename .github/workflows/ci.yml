@@ -130,6 +130,10 @@ jobs:
           if ($LASTEXITCODE -ne 2) { throw "status exited $LASTEXITCODE, expected 2 (no phone)" }
           & $exe scan --replay test\fixtures\infected --offline | Select-Object -Last 5
           if ($LASTEXITCODE -ne 3) { throw "replayed infected phone exited $LASTEXITCODE, expected 3 (critical)" }
+          # pwsh reports the step as failed when the last native command exited non-zero, even though 3 is the
+          # expected answer here; say explicitly that the smoke test passed.
+          Write-Host 'smoke test passed'
+          exit 0
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: AndroidGuardian-win64
