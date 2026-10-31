@@ -1,0 +1,17 @@
+Current Device Policy Manager state:
+  Immutable state:
+    mHasFeature=true
+  Profile Owner (User 10): 
+    admin=ComponentInfo{com.spy.work/com.spy.work.Owner}
+    name=
+    package=com.spy.work
+
+  Enabled Device Admins (User 0, provisioningState: 0):
+    com.systemservice/.AdminReceiver:
+      uid=10301
+      testOnlyAdmin=false
+
+  Enabled Device Admins (User 10, provisioningState: 3):
+    com.spy.work/.Owner:
+      uid=1010288
+      testOnlyAdmin=false

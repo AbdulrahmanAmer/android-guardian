@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>component · phone chip</title>
+<link rel="stylesheet" href="../tokens.css">
+<style>
+/* Component: the connection chip. A tab in the rail colour hanging from the top edge of the window, joined to the
+   edge with concave fillets (the same cut as the rail), carrying the phone's state. */
+html,body{margin:0;background:var(--paper);color:var(--ink);font:var(--fs-body)/1.5 system-ui,"Segoe UI",Roboto,sans-serif}
+.stage{position:relative;width:640px;height:180px;background:var(--paper)}
+.mast{position:absolute;left:32px;right:32px;top:0;height:88px;display:flex;align-items:center;border-bottom:1px solid var(--rule)}
+.wordmark{font-size:var(--fs-section);font-weight:700;letter-spacing:-.01em}
+.chip{
+  --h:64px;--r:32px;--fillet:16px;
+  position:absolute;right:32px;top:0;height:var(--h);padding:0 22px 0 72px;
+  color:var(--rail-ink);display:flex;flex-direction:column;justify-content:center;font-size:var(--fs-caption);line-height:1.3;white-space:nowrap}
+.chip svg{position:absolute;left:calc(-1 * var(--fillet));right:calc(-1 * var(--fillet));top:0;height:var(--h);width:calc(100% + 2 * var(--fillet))}
+.chip b{font-weight:600;color:var(--sev-ok)}
+.chip .dot{position:absolute;left:12px;top:12px;width:40px;height:40px;border-radius:50%;background:var(--paper);color:var(--ink);display:grid;place-items:center;font-size:var(--fs-caption);font-weight:600}
+.chip span,.chip b{position:relative}
+</style>
+</head>
+<body>
+<div class="stage">
+  <header class="mast"><div class="wordmark">Android Guardian</div></header>
+  <div class="chip" style="width:300px">
+    <!-- tab shape: box width = chip width + 2*fillet (16): 332 x 64. Fillets curve outward at the top, bottom corners r=32 -->
+    <svg viewBox="0 0 332 64" preserveAspectRatio="none" aria-hidden="true">
+      <path fill="var(--rail)" d="
+        M0 0
+        A16 16 0 0 1 16 16
+        V32
+        A32 32 0 0 0 48 64
+        H284
+        A32 32 0 0 0 316 32
+        V16
+        A16 16 0 0 1 332 0
+        Z"/>
+    </svg>
+    <span class="dot">USB</span>
+    <b>Connected</b>
+    <span>samsung SM-A525F · Android 13</span>
+  </div>
+</div>
+</body>
+</html>

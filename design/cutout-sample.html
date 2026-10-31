@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Android Guardian · design sample · Cutout</title>
+<link rel="stylesheet" href="tokens.css">
+<link rel="stylesheet" href="components.css">
+<style>
+/* Sample page, direction "Cutout". Job: product UI for a calm safety tool. Hero: the verdict.
+   The cutout appears in exactly three places: chip (top edge), active step (rail), active tab (phone bar). */
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--paper);color:var(--ink);font:var(--fs-body)/1.5 system-ui,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+h1,h2,h3,p{margin:0}
+.caption{font-size:var(--fs-caption);color:var(--ink-2)}
+.board{max-width:1280px;margin:40px auto;padding:0 24px}
+.board h2{font-size:var(--fs-section);font-weight:600;margin:40px 0 12px}
+.window{position:relative;min-height:900px;background:var(--paper);overflow:hidden}
+.main{padding:0 var(--gutter) 64px 272px;max-width:1240px}
+.mast{position:relative;height:88px;display:flex;align-items:center;border-bottom:1px solid var(--rule)}
+.wordmark{font-size:var(--fs-section);font-weight:700;letter-spacing:-.01em}
+.lead{padding:56px 0 8px;max-width:640px}
+.lead p{margin-top:16px;color:var(--ink-2);max-width:52ch}
+.lead .ag-counts{margin-top:24px}
+hr{border:0;border-top:1px solid var(--rule);margin:40px 0 16px}
+h2.sec{font-size:var(--fs-section);font-weight:600;margin-bottom:4px}
+.phone{position:relative;width:390px;height:600px;background:var(--paper);border:1px solid var(--rule);border-radius:36px;overflow:hidden}
+.phone .screen{padding:28px 24px}
+.phone .ag-verdict{font-size:40px}
+.phone .lead{padding:20px 0 0}
+.phone .ag-finding{grid-template-columns:4px 1fr;padding:14px 0}
+.phone .rows{margin-top:22px}
+</style>
+</head>
+<body>
+<div class="board">
+  <p class="caption">Sample page · direction "Cutout" · built from design/components.css + components.js (parameters measured from the references with the bench's reference translator). <code>?theme=dark</code> forces dark. Click steps and tabs.</p>
+  <h2>Desktop · results</h2>
+</div>
+
+<div class="window">
+  <nav class="ag-rail" aria-label="Steps" style="--active:2">
+    <ol>
+      <li class="done" style="--p:100"><span class="n">1</span><span class="label">Connect</span></li>
+      <li class="done" style="--p:100"><span class="n">2</span><span class="label">Scan</span></li>
+      <li><span class="n">3</span><span class="label">Results</span></li>
+      <li><span class="n">4</span><span class="label">Protect</span></li>
+    </ol>
+    <div class="ag-ball">3<small>Results</small></div>
+  </nav>
+
+  <div class="main">
+    <header class="mast">
+      <div class="wordmark">Android Guardian</div>
+      <div class="ag-chip"><span class="dot">USB</span><b>Connected</b><span>samsung SM-A525F · Android 13</span></div>
+    </header>
+
+    <div class="lead">
+      <h1 class="ag-verdict critical">2 threats found</h1>
+      <p>Remove them below. Each one is listed with the exact reasons it was flagged. Removing spyware can alert whoever installed it; save the report first if that matters to you.</p>
+      <div class="ag-counts"><div><b>7</b>apps checked</div><div><b>2</b>critical</div><div><b>0</b>suspicious</div><div><b>1</b>to watch</div><div><b>5,938</b>known indicators</div></div>
+    </div>
+
+    <hr>
+    <h2 class="sec">Apps</h2>
+    <div class="ag-finding CRITICAL"><div class="bar"></div><div>
+      <h3><span class="sev">Critical</span>System Service <span class="pkg">com.systemservice</span></h3>
+      <ul class="ag-reasons"><li data-pts="100">Package name is on the known stalkerware list (TheTruthSpy)</li><li data-pts="35">Accessibility service is on: can read everything on screen and tap for you</li><li data-pts="25">Device administrator: can lock or wipe the phone and resist uninstall</li><li data-pts="25">No app icon in the launcher: hidden from you</li></ul>
+    </div><div class="ag-actions"><button class="ag-btn critical">Remove from phone</button><button class="ag-btn">Keep, but take its rights away</button></div></div>
+    <div class="ag-finding CRITICAL"><div class="bar"></div><div>
+      <h3><span class="sev">Critical</span>Wi-Fi Update <span class="pkg">com.wifi.update.service</span></h3>
+      <ul class="ag-reasons"><li data-pts="25">No app icon in the launcher: hidden from you</li><li data-pts="20">Notification access: reads all incoming notifications and messages</li><li data-pts="15">Holds 6 kinds of surveillance access at once (microphone, camera, SMS, calls, location, contacts)</li><li data-pts="15">Not installed from an app store</li><li data-pts="15">Name imitates a system component</li></ul>
+    </div><div class="ag-actions"><button class="ag-btn critical">Remove from phone</button><button class="ag-btn">Keep, but take its rights away</button></div></div>
+    <div class="ag-finding WATCH"><div class="bar"></div><div>
+      <h3><span class="sev">Watch</span>AnyDesk <span class="pkg">com.anydesk.anydeskandroid</span></h3>
+      <ul class="ag-reasons"><li data-pts="25">Remote-control app. Fine if you installed it yourself; a stranger could use it to see and control your screen</li></ul>
+    </div><div class="ag-actions"><button class="ag-btn">Keep, but take its rights away</button></div></div>
+  </div>
+</div>
+
+<div class="board">
+  <h2>Phone · same system, bottom bar</h2>
+  <div class="phone">
+    <div class="screen">
+      <div class="wordmark">Android Guardian</div>
+      <div class="lead"><div class="ag-verdict critical">2 threats found</div><p class="caption" style="margin-top:10px">Scanned from your computer at 03:14. Open Android Guardian on the PC to remove them.</p></div>
+      <div class="rows">
+        <div class="ag-finding CRITICAL"><div class="bar"></div><div><h3><span class="sev">Critical</span>System Service</h3><p class="caption">Known stalkerware · hidden · reads your screen</p></div></div>
+        <div class="ag-finding CRITICAL"><div class="bar"></div><div><h3><span class="sev">Critical</span>Wi-Fi Update</h3><p class="caption">Hidden · reads notifications · 6 kinds of access</p></div></div>
+        <div class="ag-finding WATCH"><div class="bar"></div><div><h3><span class="sev">Watch</span>AnyDesk</h3><p class="caption">Remote control app · fine if it is yours</p></div></div>
+      </div>
+    </div>
+    <nav class="ag-tabbar" aria-label="Sections" style="--active:2">
+      <ol><li>Home</li><li>Apps</li><li>Protect</li><li>Settings</li></ol>
+      <div class="ag-ball">Protect</div>
+    </nav>
+  </div>
+</div>
+<script>if (new URLSearchParams(location.search).get('theme') === 'dark') document.documentElement.setAttribute('data-theme', 'dark');</script>
+<script src="components.js"></script>
+<script>document.querySelector('.ag-rail').addEventListener('ag:step', (e) => e.currentTarget.activate(e.detail.index));</script>
+</body>
+</html>

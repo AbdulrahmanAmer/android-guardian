@@ -1,0 +1,22 @@
+/* Android Guardian design tokens. One family, five sizes, one action colour, severity colours mean severity only.
+   The rail is the single dark surface; it inverts in dark mode so it never sits dark-on-dark. */
+:root{
+  --paper:#ffffff;--paper-2:#f3f4f6;--ink:#111318;--ink-2:#5b6472;--rule:#dfe3e8;
+  --rail:#111318;--rail-ink:#ffffff;--rail-ink-2:#8b94a1;--rail-track:#2a2f37;
+  --action:#1a56db;--action-ink:#ffffff;
+  --sev-critical:#b3261e;--sev-suspicious:#b45309;--sev-watch:#8a6d00;--sev-ok:#1b7f3b;
+  --fs-caption:14px;--fs-body:16px;--fs-section:20px;--fs-title:28px;--fs-hero:56px;
+  --gutter:32px;--ease:cubic-bezier(.2,.8,.2,1);
+}
+:root[data-theme="dark"]{
+  --paper:#0e1013;--paper-2:#181b20;--ink:#eceef1;--ink-2:#9aa3af;--rule:#262b33;
+  --rail:#eceef1;--rail-ink:#111318;--rail-ink-2:#6b7482;--rail-track:#cfd4db;
+  --action:#5b8def;--action-ink:#0b1020;
+  --sev-critical:#ef6a62;--sev-suspicious:#f0a04b;--sev-watch:#d9b94a;--sev-ok:#5fc07e;
+}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --paper:#0e1013;--paper-2:#181b20;--ink:#eceef1;--ink-2:#9aa3af;--rule:#262b33;
+  --rail:#eceef1;--rail-ink:#111318;--rail-ink-2:#6b7482;--rail-track:#cfd4db;
+  --action:#5b8def;--action-ink:#0b1020;
+  --sev-critical:#ef6a62;--sev-suspicious:#f0a04b;--sev-watch:#d9b94a;--sev-ok:#5fc07e;
+}}

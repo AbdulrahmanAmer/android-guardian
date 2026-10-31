@@ -3,20 +3,27 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<link rel="icon" href="data:,">
 <title>Android Guardian</title>
 <style>
 /* ---- system: one family, five sizes, one action colour, severity colours mean severity only ---- */
 :root{
+  color-scheme:light dark;
   --paper:#ffffff;--paper-2:#f3f4f6;--ink:#111318;--ink-2:#5b6472;--rule:#dfe3e8;
   --action:#1a56db;--action-ink:#ffffff;
   --sev-critical:#b3261e;--sev-suspicious:#b45309;--sev-watch:#8a6d00;--sev-ok:#1b7f3b;
   --fs-caption:14px;--fs-body:16px;--fs-section:20px;--fs-title:28px;--fs-hero:52px;
   --gutter:24px;--measure:820px;
 }
-:root:not([data-theme="light"]){ @media(prefers-color-scheme:dark){
-  --paper:#0e1013;--paper-2:#181b20;--ink:#eceef1;--ink-2:#9aa3af;--rule:#262b33;--action:#5b8def;--action-ink:#0b1020;
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --paper:#0e1013;--paper-2:#181b20;--ink:#eceef1;--ink-2:#9aa3af;--rule:#2b313a;--action:#5b8def;--action-ink:#0b1020;
   --sev-critical:#ef6a62;--sev-suspicious:#f0a04b;--sev-watch:#d9b94a;--sev-ok:#5fc07e;
 }}
+:root[data-theme="dark"]{
+  --paper:#0e1013;--paper-2:#181b20;--ink:#eceef1;--ink-2:#9aa3af;--rule:#2b313a;--action:#5b8def;--action-ink:#0b1020;
+  --sev-critical:#ef6a62;--sev-suspicious:#f0a04b;--sev-watch:#d9b94a;--sev-ok:#5fc07e;
+}
 *{box-sizing:border-box}
 html,body{margin:0;background:var(--paper);color:var(--ink);font:var(--fs-body)/1.5 system-ui,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
 .wrap{max-width:var(--measure);margin:0 auto;padding:0 var(--gutter)}
@@ -25,61 +32,103 @@ h1,h2,h3,p{margin:0}
 h2{font-size:var(--fs-section);font-weight:600;margin-bottom:12px}
 .caption{font-size:var(--fs-caption);color:var(--ink-2)}
 .muted{color:var(--ink-2)}
+.measure{max-width:62ch}
 hr{border:0;border-top:1px solid var(--rule);margin:40px 0}
-button{font:inherit;font-weight:500;border:1px solid var(--rule);background:var(--paper);color:var(--ink);padding:10px 16px;border-radius:6px;cursor:pointer}
-button:hover{border-color:var(--ink-2)}
+:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
+
+/* controls: one bordered button, one filled primary, one link-like */
+button,.button{font:inherit;font-weight:500;border:1px solid var(--rule);background:var(--paper);color:var(--ink);padding:10px 16px;border-radius:6px;cursor:pointer;text-decoration:none;display:inline-block;line-height:1.5}
+button:hover,.button:hover{border-color:var(--ink-2)}
 button:disabled{opacity:.45;cursor:default}
-button.primary{background:var(--action);color:var(--action-ink);border-color:var(--action);padding:14px 24px;font-size:var(--fs-body)}
-button.critical{color:var(--sev-critical);border-color:currentColor}
-button.quiet{border-color:transparent;color:var(--action);padding-left:0;padding-right:0}
-select,input{font:inherit;padding:9px 12px;border-radius:6px;border:1px solid var(--rule);background:var(--paper);color:var(--ink);min-width:0}
+button.primary{background:var(--action);color:var(--action-ink);border-color:var(--action)}
+button.primary.big{padding:14px 24px}
+button.link{border-color:transparent;background:none;color:var(--action);padding-left:0;padding-right:0;text-decoration:underline;text-underline-offset:3px}
+select,input{font:inherit;padding:9px 12px;border-radius:6px;border:1px solid var(--rule);background:var(--paper);color:var(--ink);min-width:0;max-width:100%}
+label{font-weight:500}
 .row{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
-ol{margin:12px 0 0;padding-left:22px}ol li{margin:8px 0}ol li+li{border-top:1px solid var(--rule);padding-top:8px}
+ol.todo{margin:16px 0 0;padding-left:22px;max-width:62ch}ol.todo li{margin:8px 0}ol.todo li+li{border-top:1px solid var(--rule);padding-top:8px}
 
-/* masthead: wordmark left, phone state right. Same furniture in every state. */
-.mast{display:flex;justify-content:space-between;align-items:baseline;gap:16px;padding:28px 0 20px;border-bottom:1px solid var(--rule)}
+/* masthead: wordmark left, phone state and Quit right. Same furniture in every state. */
+.mast{display:flex;justify-content:space-between;align-items:center;gap:16px;padding:24px 0 20px;border-bottom:1px solid var(--rule)}
 .wordmark{font-size:var(--fs-section);font-weight:700;letter-spacing:-.01em}
-.state{font-size:var(--fs-caption);text-align:right}
-.state b{font-weight:600}
-.state.ready b{color:var(--sev-ok)}.state.wait b{color:var(--sev-suspicious)}.state.bad b{color:var(--ink-2)}
+.mast-right{display:flex;align-items:center;gap:20px}
+.state{font-size:var(--fs-caption);text-align:right;color:var(--ink-2)}
+.state b{font-weight:600;color:var(--ink)}
+#quit{padding:6px 12px;font-size:var(--fs-caption)}
 
-/* lead: the one thing to do or the one verdict */
+/* lead: the one thing to do, or the one verdict */
 .lead{padding:48px 0 8px}
 .lead h1{font-size:var(--fs-title);font-weight:700;letter-spacing:-.015em;line-height:1.2;max-width:28ch}
-.lead p{margin-top:12px;max-width:60ch}
-.verdict{font-size:var(--fs-hero);font-weight:700;letter-spacing:-.03em;line-height:1.05}
+.lead p{margin-top:12px;max-width:62ch}
+.lead .verdict{max-width:none;font-size:var(--fs-hero);font-weight:700;letter-spacing:-.03em;line-height:1.05}
+.verdict:focus{outline:none}
 .verdict.critical{color:var(--sev-critical)}.verdict.suspicious{color:var(--sev-suspicious)}.verdict.ok{color:var(--sev-ok)}
 .counts{display:flex;gap:28px;margin-top:20px;flex-wrap:wrap}
-.counts div{font-size:var(--fs-caption);color:var(--ink-2)}.counts b{display:block;font-size:var(--fs-section);color:var(--ink);font-weight:600}
+.counts div{font-size:var(--fs-caption);color:var(--ink-2)}.counts b{display:block;font-size:var(--fs-section);color:var(--ink);font-weight:600;font-variant-numeric:tabular-nums}
+.notice{margin-top:28px;padding-left:16px;border-left:2px solid var(--ink-2);max-width:62ch}
 
-.log{margin-top:20px;background:var(--paper-2);border-radius:6px;padding:12px 14px;font:var(--fs-caption)/1.55 ui-monospace,Consolas,"Cascadia Mono",monospace;max-height:240px;overflow:auto;white-space:pre-wrap}
+/* scanning */
+.progress-line{margin-top:20px;font-weight:600}
+progress{display:block;width:100%;max-width:62ch;height:6px;margin-top:10px;appearance:none;-webkit-appearance:none;border:0;border-radius:3px;background:var(--rule);color:var(--ink);overflow:hidden}
+progress::-webkit-progress-bar{background:var(--rule)}
+progress::-webkit-progress-value{background:var(--ink);transition:width .3s}
+progress::-moz-progress-bar{background:var(--ink)}
+.log{margin-top:20px;background:var(--paper-2);border-radius:6px;padding:12px 14px;font-size:var(--fs-caption);line-height:1.6;max-height:240px;overflow:auto;white-space:pre-wrap;font-variant-numeric:tabular-nums}
+.error{margin-top:16px;padding-left:16px;border-left:2px solid var(--ink-2);max-width:62ch}
 
 /* findings: rows with a severity bar, not boxes */
-.finding{display:grid;grid-template-columns:4px 1fr;gap:0 18px;padding:18px 0;border-top:1px solid var(--rule)}
+.finding{display:grid;grid-template-columns:4px minmax(0,1fr);gap:0 18px;padding:18px 0;border-top:1px solid var(--rule)}
 .finding:first-child{border-top:0}
 .finding .bar{background:var(--rule);border-radius:2px}
 .finding.CRITICAL .bar{background:var(--sev-critical)}.finding.SUSPICIOUS .bar{background:var(--sev-suspicious)}.finding.WATCH .bar{background:var(--sev-watch)}.finding.OK .bar{background:var(--sev-ok)}
-.finding h3{font-size:var(--fs-body);font-weight:600;display:flex;gap:10px;align-items:baseline;flex-wrap:wrap}
-.finding h3 .sev{font-size:var(--fs-caption);font-weight:600;text-transform:uppercase;letter-spacing:.04em}
-.finding.CRITICAL .sev{color:var(--sev-critical)}.finding.SUSPICIOUS .sev{color:var(--sev-suspicious)}.finding.WATCH .sev{color:var(--sev-watch)}.finding.OK .sev{color:var(--sev-ok)}
-.finding h3 .pkg{font-size:var(--fs-caption);color:var(--ink-2);font-weight:400}
+.finding.dealt .bar{background:var(--rule)}
+.finding h3{font-size:var(--fs-body);font-weight:600;display:flex;gap:4px 10px;align-items:baseline;flex-wrap:wrap}
+.sev{font-size:var(--fs-caption);font-weight:600;text-transform:uppercase;letter-spacing:.04em}
+.CRITICAL .sev{color:var(--sev-critical)}.SUSPICIOUS .sev{color:var(--sev-suspicious)}.WATCH .sev{color:var(--sev-watch)}.OK .sev{color:var(--sev-ok)}
+.finding h3 .pkg{font-size:var(--fs-caption);color:var(--ink-2);font-weight:400;overflow-wrap:anywhere}
 .finding h3 .score{margin-left:auto;font-size:var(--fs-caption);color:var(--ink-2);font-weight:400}
 .reasons{margin:8px 0 0;padding:0;list-style:none}
-.reasons li{padding:2px 0;color:var(--ink);font-size:var(--fs-caption)}
-.reasons li::before{content:"+" attr(data-pts) "  ";color:var(--ink-2);font-variant-numeric:tabular-nums}
+.reasons li{padding:2px 0;font-size:var(--fs-caption);display:grid;grid-template-columns:3.2em minmax(0,1fr)}
+.reasons li .pts{color:var(--ink-2);font-variant-numeric:tabular-nums}
 .actions{margin-top:14px}
-.steps{margin-top:12px;font-size:var(--fs-caption);line-height:1.6}
-.steps .ok{color:var(--sev-ok)}.steps .fail{color:var(--sev-critical)}
+.outcome{margin-top:14px;max-width:62ch}
+.outcome .said{font-weight:600}
+.steps{margin:8px 0 0;padding:0;list-style:none;font-size:var(--fs-caption)}
+.steps li{padding:2px 0;display:grid;grid-template-columns:7.5em minmax(0,1fr);gap:8px}
+.steps .word{font-weight:600}
+.manual{margin-top:12px}
+.manual ol{margin:6px 0 0;padding-left:22px}.manual li{margin:4px 0}
+.working{margin-top:14px;font-weight:600}
 
-.setting{display:flex;justify-content:space-between;gap:16px;align-items:flex-start;padding:14px 0;border-top:1px solid var(--rule)}
+.setting{padding:14px 0;border-top:1px solid var(--rule)}
 .setting:first-child{border-top:0}
-.setting .sev{font-size:var(--fs-caption);font-weight:600;text-transform:uppercase;letter-spacing:.04em;margin-right:8px}
-.setting.CRITICAL .sev{color:var(--sev-critical)}.setting.SUSPICIOUS .sev{color:var(--sev-suspicious)}.setting.WATCH .sev{color:var(--sev-watch)}
+.setting .line{display:flex;justify-content:space-between;gap:16px;align-items:flex-start}
+.setting .sev{margin-right:4px}
 
-details summary{cursor:pointer;color:var(--ink-2);font-size:var(--fs-caption)}
+details summary{cursor:pointer;color:var(--ink-2);font-size:var(--fs-caption);padding:4px 0}
+.steps-more{margin-top:8px}
+.field{display:flex;flex-direction:column;gap:6px;flex:1;min-width:220px}
 footer{padding:40px 0 48px;font-size:var(--fs-caption);color:var(--ink-2)}
-.hidden{display:none}
-@media(max-width:560px){:root{--fs-hero:40px;--fs-title:24px}.mast{flex-direction:column;align-items:flex-start}.state{text-align:left}.finding h3 .score{margin-left:0}}
+.hidden{display:none !important}
+.vh{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+
+dialog{border:1px solid var(--rule);border-radius:8px;background:var(--paper);color:var(--ink);padding:28px;width:min(560px,calc(100vw - 32px));max-height:calc(100vh - 32px);overflow:auto}
+dialog::backdrop{background:rgba(0,0,0,.45)}
+dialog h2{font-size:var(--fs-section)}
+dialog ol{padding-left:22px;margin:8px 0 0}dialog li{margin:6px 0}
+dialog .row{margin-top:24px}
+
+@media (max-width:560px){
+  :root{--fs-hero:40px;--fs-title:24px;--gutter:16px}
+  .mast{flex-wrap:wrap}
+  .mast-right{width:100%;justify-content:space-between}
+  .state{text-align:left}
+  .lead{padding-top:32px}
+  .finding h3 .score{margin-left:0}
+  .setting .line{flex-direction:column}
+  .counts{gap:20px}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none !important;scroll-behavior:auto !important}}
 </style>
 </head>
 <body>
@@ -87,207 +136,613 @@ footer{padding:40px 0 48px;font-size:var(--fs-caption);color:var(--ink-2)}
 
 <header class="mast">
   <div class="wordmark">Android Guardian</div>
-  <div class="state bad" id="state"><b>Looking for a phone…</b></div>
+  <div class="mast-right">
+    <div class="state" id="state" role="status" aria-live="polite"><b>Looking for a phone…</b></div>
+    <button type="button" id="quit" title="Close Android Guardian">Quit</button>
+  </div>
 </header>
 
-<!-- STATE A: connect -->
-<section id="viewConnect">
+<main>
+<!-- Connect: no phone, not allowed yet, not answering, more than one phone, program part missing -->
+<section id="viewConnect" class="hidden" aria-labelledby="connTitle">
   <div class="lead">
-    <h1 id="connTitle">Connect your Android phone with a USB cable</h1>
-    <p class="muted">Android Guardian reads every installed app and its rights, compares them with public lists of known stalkerware, and looks for spy-like behaviour. Nothing is installed on the phone and nothing leaves this computer.</p>
+    <h1 id="connTitle" tabindex="-1">Connect your Android phone with a USB cable</h1>
+    <p class="muted" id="connSub">Android Guardian reads every installed app and its rights, compares them with public lists of known stalkerware, and looks for spy-like behaviour. Nothing is installed on the phone and nothing leaves this computer.</p>
   </div>
-  <ol id="connTodo"></ol>
-  <div class="row" style="margin-top:20px">
-    <button id="recheck">Check again</button>
-    <span class="caption">Checks by itself every few seconds.</span>
-  </div>
-</section>
-
-<!-- STATE B: ready to scan / scanning -->
-<section id="viewScan" class="hidden">
-  <div class="lead">
-    <h1 id="scanTitle">Phone connected. Ready to scan.</h1>
-    <p class="muted">Takes one to three minutes. Keep the phone unlocked and plugged in. If the phone shows "Allow USB debugging?", tap Allow.</p>
-  </div>
+  <ol class="todo" id="connTodo"></ol>
   <div class="row" style="margin-top:24px">
-    <button class="primary" id="scanBtn">Scan this phone</button>
-    <span class="caption" id="warnWrite"></span>
+    <button type="button" id="recheck">Check again</button>
+    <span class="caption">It also checks by itself every few seconds.</span>
   </div>
-  <div class="log hidden" id="log"></div>
 </section>
 
-<!-- STATE C: results -->
-<section id="viewResults" class="hidden">
+<!-- Ready / Scanning / Scan failed -->
+<section id="viewScan" class="hidden" aria-labelledby="scanTitle">
   <div class="lead">
-    <div class="verdict" id="verdict"></div>
+    <h1 id="scanTitle" tabindex="-1">Ready to scan</h1>
+    <p class="muted" id="scanSub">Takes one to three minutes. Keep the phone unlocked and plugged in. If the phone asks "Allow USB debugging?", tap Allow.</p>
+  </div>
+  <div id="readyBox">
+    <div id="extraSwitch" class="notice hidden">
+      <p><b>One more switch, only needed to take rights away or protect the phone</b></p>
+      <p id="extraSwitchText" style="margin-top:6px"></p>
+      <p class="caption" style="margin-top:6px">You can scan and remove apps without it.</p>
+    </div>
+    <div class="row" style="margin-top:28px">
+      <button type="button" class="primary big" id="scanBtn">Scan this phone</button>
+      <button type="button" class="link hidden" id="backToResults">Back to the last results</button>
+    </div>
+  </div>
+  <div id="scanningBox" class="hidden">
+    <p class="progress-line" id="progressText" aria-live="polite">Starting…</p>
+    <progress id="progressBar" max="1" value="0" aria-labelledby="progressText"></progress>
+  </div>
+  <div id="failBox" class="hidden">
+    <div class="error"><p><b>What happened:</b> <span id="failText"></span></p><p class="caption" style="margin-top:6px">Nothing on the phone was changed.</p></div>
+  </div>
+  <div class="log hidden" id="log" role="log" aria-label="Scan details" tabindex="0"></div>
+</section>
+
+<!-- Results -->
+<section id="viewResults" class="hidden" aria-labelledby="verdict">
+  <div class="lead">
+    <h1 class="verdict" id="verdict" tabindex="-1"></h1>
     <p class="muted" id="verdictSub"></p>
     <div class="counts" id="counts"></div>
+    <p class="caption hidden" id="unplugged" style="margin-top:16px">The phone is not connected right now. Plug it back in to remove apps or change settings.</p>
+    <p class="caption hidden" id="demoNote" style="margin-top:16px">This is a recording of a phone, for trying Android Guardian out. Remove and other changes are shown but cannot really happen.</p>
+    <p class="notice hidden" id="safety">If someone close to you may have put this on your phone, removing it can alert them, so <a href="/api/report.html" download>save the report</a> first and, if you feel unsafe, talk to a support service (<a href="https://stopstalkerware.org/" target="_blank" rel="noopener noreferrer">stopstalkerware.org</a> lists them).</p>
   </div>
+  <div id="warnings" class="hidden" style="margin-top:20px"><p class="caption">Some checks could not run:</p><ul class="caption" id="warningsList" style="margin:4px 0 0;padding-left:20px"></ul></div>
   <hr>
   <h2>Apps</h2>
   <div id="apps"></div>
-  <div class="row" style="margin-top:12px"><button class="quiet" id="toggleAll">Show all apps</button></div>
+  <div class="row" style="margin-top:12px"><button type="button" class="link" id="toggleAll"></button></div>
   <hr>
   <h2>Phone settings</h2>
   <div id="settings"></div>
   <hr>
   <h2>Protect this phone</h2>
-  <p class="muted" style="max-width:60ch">Switches the phone's Private DNS to a provider that refuses to resolve known stalkerware and malware servers, so even a missed app cannot phone home. Android 9 or newer. Undo any time here or in Settings › Network › Private DNS.</p>
+  <p class="muted measure">Switches the phone's Private DNS to a service that refuses to look up known stalkerware and malware servers, so even an app that was missed cannot report back. Android 9 or newer. Undo any time here or on the phone in Settings › Network › Private DNS.</p>
   <div class="row" style="margin-top:14px">
+    <label class="vh" for="dnsProvider">DNS service</label>
     <select id="dnsProvider"></select>
-    <button class="primary" id="dnsOn" style="padding:10px 16px">Turn on</button>
-    <button id="dnsOff">Turn off</button>
+    <button type="button" class="primary" id="dnsOn">Turn on</button>
+    <button type="button" id="dnsOff">Turn off</button>
   </div>
-  <div class="steps hidden" id="dnsSteps"></div>
+  <div id="dnsOut" aria-live="polite"></div>
   <hr>
   <div class="row">
-    <a href="/api/report.html"><button>Save report</button></a>
-    <button id="rescan">Scan again</button>
-    <span class="caption">When you are done, turn USB debugging off in Developer options on the phone.</span>
+    <a class="button" id="saveReport" href="/api/report.html" download>Save report</a>
+    <button type="button" id="rescan">Scan again</button>
   </div>
+  <p class="caption" style="margin-top:12px">When you are done, turn USB debugging off on the phone: Settings › Developer options › USB debugging.</p>
 </section>
 
-<hr>
-<details>
-  <summary>Advanced: VirusTotal check, threat-list update</summary>
-  <div class="row" style="margin-top:12px">
-    <input id="vtKey" type="password" placeholder="VirusTotal API key (optional)" style="flex:1;min-width:220px" autocomplete="off">
-    <button id="vtSave">Save key</button>
-    <span class="caption" id="vtNote"></span>
+<!-- Closed -->
+<section id="viewClosed" class="hidden" aria-labelledby="closedTitle">
+  <div class="lead">
+    <h1 id="closedTitle" tabindex="-1">Android Guardian has closed</h1>
+    <p class="muted" id="closedSub">You can close this tab. To use it again, open Android Guardian from the Start menu or the Desktop.</p>
+    <p class="muted">If you are finished with the phone, turn USB debugging off: Settings › Developer options › USB debugging.</p>
   </div>
-  <p class="caption" style="margin-top:8px;max-width:70ch">With a free key from virustotal.com, the scan also asks VirusTotal whether any sideloaded app file is known malware. Only the file's fingerprint is sent, never the file.</p>
-  <div class="row" style="margin-top:12px">
-    <button id="iocBtn">Update threat list now</button>
-    <span class="caption" id="iocNote">Updates itself weekly.</span>
+</section>
+</main>
+
+<hr id="advancedRule">
+<details id="advanced">
+  <summary>Settings: VirusTotal check, threat list, saved reports</summary>
+  <div class="row" style="margin-top:16px;align-items:flex-end">
+    <div class="field">
+      <label for="vtKey">VirusTotal API key (optional)</label>
+      <input id="vtKey" type="password" autocomplete="off" spellcheck="false" placeholder="Paste the key here">
+    </div>
+    <button type="button" id="vtSave">Save key</button>
+    <button type="button" id="vtClear">Remove key</button>
+  </div>
+  <p class="caption" id="vtNote" style="margin-top:8px" aria-live="polite"></p>
+  <p class="caption measure" style="margin-top:4px">With a free key from virustotal.com, the scan also asks VirusTotal whether any app file that did not come from a store is known malware. Only the file's fingerprint is sent, never the file.</p>
+  <div class="row" style="margin-top:20px">
+    <button type="button" id="iocBtn">Update threat list now</button>
+    <span class="caption" id="iocNote" aria-live="polite">It updates itself every week.</span>
+  </div>
+  <div class="row" style="margin-top:20px">
+    <button type="button" id="openReports">Open reports folder</button>
+    <span class="caption" id="reportsPath" style="overflow-wrap:anywhere"></span>
   </div>
 </details>
 
-<footer>Free and open source (MIT) · by Abdulraham Amer · Known-threat data from the Echap stalkerware-indicators project · <a href="https://github.com/REPO_PLACEHOLDER" target="_blank" rel="noopener">Source code</a></footer>
+<footer>Android Guardian <span id="version"></span> · Free and open source (MIT) · by Abdulraham Amer · Known-threat data from the Echap stalkerware-indicators project · <a href="https://github.com/REPO_PLACEHOLDER" target="_blank" rel="noopener noreferrer">Source code</a></footer>
 </div>
 
+<dialog id="dlg" aria-labelledby="dlgTitle">
+  <h2 id="dlgTitle"></h2>
+  <div id="dlgBody"></div>
+  <div class="row">
+    <button type="button" class="primary" id="dlgOk">OK</button>
+    <button type="button" id="dlgCancel">Cancel</button>
+  </div>
+</dialog>
+
 <script>
+'use strict';
 const $ = (id) => document.getElementById(id);
-let ready = false, showAll = false, result = null, pollTimer = null, scanning = false;
-const esc = (s) => String(s ?? '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
-const cssId = (s) => s.replace(/[^a-zA-Z0-9]/g, '_');
+const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const plural = (n, one, many) => `${n} ${n === 1 ? one : many}`;
+const maker = (m) => { const t = String(m ?? ''); return t ? t[0].toUpperCase() + t.slice(1) : ''; };
+const phoneName = (d) => d ? `${maker(d.manufacturer)} ${d.model || ''}`.trim() : '';
+const LEVEL_WORD = { CRITICAL: 'Critical', SUSPICIOUS: 'Suspicious', WATCH: 'Watch', OK: 'OK' };
+
+// Everything the page knows. Re-built from /api/status after a refresh, so reloading the tab never loses the state.
+const ui = { status: null, result: null, showAll: false, pollTimer: null, closed: false, view: null, hideFailure: false, errors: {}, drawn: '' };
 
 async function api(path, body) {
-  const r = await fetch(path, body ? { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(body) } : {});
+  const opts = body ? { method: 'POST', headers: { 'content-type': 'application/json', 'x-guardian': '1' }, body: JSON.stringify(body) } : {};
+  const r = await fetch(path, opts);
   const data = await r.json().catch(() => ({}));
-  if (!r.ok) throw new Error(data.error || r.statusText);
+  if (!r.ok) { const e = new Error(data.error || r.statusText); e.status = r.status; throw e; }
   return data;
 }
-function show(view) {
-  for (const v of ['viewConnect', 'viewScan', 'viewResults']) $(v).classList.toggle('hidden', v !== view);
+
+function show(view, focusId) {
+  for (const v of ['viewConnect', 'viewScan', 'viewResults', 'viewClosed']) $(v).classList.toggle('hidden', v !== view);
+  if (ui.view !== view && focusId && ui.view !== null) $(focusId).focus({ preventScroll: false });
+  ui.view = view;
 }
+function setTitle(t) { document.title = t ? `${t} · Android Guardian` : 'Android Guardian'; }
+
+// ---------- masthead ----------
+function renderMast(r) {
+  const st = $('state');
+  if (ui.closed) { st.innerHTML = '<b>Closed</b>'; $('quit').disabled = true; return; }
+  $('quit').disabled = false;
+  if (r.state === 'ready') st.innerHTML = `<b>Connected</b><br>${esc(phoneName(r.device))} · Android ${esc(r.device.android)}`;
+  else st.innerHTML = `<b>${esc(r.title)}</b>`;
+}
+
+// ---------- the state machine ----------
+const CONNECT_COPY = {
+  'no-adb': ['Android Guardian is missing a part it needs', 'The part that talks to the phone (adb) was not found next to the program.'],
+  'no-device': ['Connect your Android phone with a USB cable', null],
+  unauthorized: ['Tap "Allow" on the phone', 'The phone is connected but has not given this computer permission yet.'],
+  offline: ['The phone is connected but not answering', 'This usually clears up after one of these:'],
+  multiple: ['More than one phone is connected', 'Android Guardian checks one phone at a time.'],
+};
+const INTRO = 'Android Guardian reads every installed app and its rights, compares them with public lists of known stalkerware, and looks for spy-like behaviour. Nothing is installed on the phone and nothing leaves this computer.';
 
 async function refreshStatus() {
-  try {
-    const s = await api('/api/status');
-    const r = s.readiness;
-    ready = r.state === 'ready';
-    scanning = s.scanning;
-    const st = $('state');
-    st.className = 'state ' + (ready ? 'ready' : r.state === 'unauthorized' ? 'wait' : 'bad');
-    st.innerHTML = ready ? `<b>Connected</b><br>${esc(r.device.manufacturer)} ${esc(r.device.model)} · Android ${esc(r.device.android)}` : `<b>${esc(r.title)}</b>`;
-    if (!ready) {
-      show('viewConnect');
-      $('connTitle').textContent = r.state === 'unauthorized' ? 'Tap "Allow" on the phone' : r.state === 'offline' ? 'Phone connected but not answering' : 'Connect your Android phone with a USB cable';
-      $('connTodo').innerHTML = r.todo.map((t) => `<li>${esc(t)}</li>`).join('');
-    } else if (result) {
-      show('viewResults');
-    } else {
-      show('viewScan');
-      $('warnWrite').textContent = r.todo[0] || '';
-      $('scanBtn').disabled = scanning;
-      $('scanBtn').textContent = scanning ? 'Scanning…' : 'Scan this phone';
-      $('scanTitle').textContent = scanning ? 'Scanning…' : 'Phone connected. Ready to scan.';
-    }
-    if (!$('dnsProvider').options.length) for (const [k, v] of Object.entries(s.dns)) { const o = document.createElement('option'); o.value = k; o.textContent = v.label; $('dnsProvider').append(o); }
-    if (s.log.length) { $('log').classList.remove('hidden'); $('log').textContent = s.log.map((l) => l.text).join('\n'); }
-    if (s.hasResult && !result) await loadResult();
-    clearTimeout(pollTimer); pollTimer = setTimeout(refreshStatus, ready ? 8000 : 3000);
-  } catch {
-    $('state').className = 'state bad'; $('state').innerHTML = '<b>Android Guardian is not running</b><br>Start AndroidGuardian.exe again and reload.';
-    clearTimeout(pollTimer); pollTimer = setTimeout(refreshStatus, 4000);
+  clearTimeout(ui.pollTimer);
+  if (ui.closed) return;
+  let s;
+  try { s = await api('/api/status'); }
+  catch {
+    showClosed('Android Guardian is not running', 'The program was closed, or its window was. Open Android Guardian again from the Start menu or the Desktop, then reload this page.');
+    ui.pollTimer = setTimeout(retryAfterClosed, 4000);
+    return;
   }
+  ui.status = s;
+  $('version').textContent = s.version || '';
+  const r = s.readiness;
+  renderMast(r);
+  fillDnsOptions(s.dns);
+  syncLog(s.log);
+  if (s.hasResult && !ui.result) { try { await loadResult(); } catch { /* shown on next poll */ } }
+  decideView();
+  ui.pollTimer = setTimeout(refreshStatus, s.scanning || s.busy ? 2000 : r.state === 'ready' ? 8000 : 3000);
+}
+async function retryAfterClosed() {
+  try { await api('/api/status'); ui.closed = false; $('advanced').classList.remove('hidden'); $('advancedRule').classList.remove('hidden'); refreshStatus(); } catch { ui.pollTimer = setTimeout(retryAfterClosed, 4000); }
 }
 
-async function loadResult() { result = await api('/api/result'); render(); show('viewResults'); }
+function decideView() {
+  const s = ui.status;
+  const r = s.readiness;
+  const ready = r.state === 'ready';
+  if (s.scanning) return showScanning();
+  if (s.scanError && !ui.hideFailure) return showFailed(s.scanError.message);
+  if (ui.result) { renderResults(false); return; }
+  if (!ready) return showConnect(r);
+  showReady(r);
+}
 
-function render() {
-  const s = result.summary;
-  const threats = s.critical + s.suspicious;
+function showConnect(r) {
+  const [title, sub] = CONNECT_COPY[r.state] || [r.title, null];
+  $('connTitle').textContent = title;
+  $('connSub').textContent = sub || INTRO;
+  $('connTodo').innerHTML = (r.todo || []).map((t) => `<li>${esc(t)}</li>`).join('');
+  setTitle('Connect your phone');
+  show('viewConnect', 'connTitle');
+}
+
+function showReady(r) {
+  $('scanTitle').textContent = `Ready to scan ${phoneName(r.device) || 'this phone'}`;
+  $('scanSub').textContent = 'Takes one to three minutes. Keep the phone unlocked and plugged in. If the phone asks "Allow USB debugging?", tap Allow.';
+  const extra = (r.todo || [])[0];
+  $('extraSwitch').classList.toggle('hidden', !extra);
+  $('extraSwitchText').textContent = extra || '';
+  $('readyBox').classList.remove('hidden');
+  $('scanningBox').classList.add('hidden');
+  $('failBox').classList.add('hidden');
+  $('scanBtn').textContent = 'Scan this phone';
+  $('scanBtn').disabled = false;
+  $('backToResults').classList.add('hidden');
+  $('log').classList.add('hidden');
+  setTitle('Ready');
+  show('viewScan', 'scanTitle');
+}
+
+function showScanning() {
+  const p = ui.status.progress;
+  $('scanTitle').textContent = 'Scanning your phone';
+  $('scanSub').textContent = 'Takes one to three minutes. Keep the phone unlocked and plugged in. You can leave this page open and wait.';
+  $('readyBox').classList.add('hidden');
+  $('failBox').classList.add('hidden');
+  $('scanningBox').classList.remove('hidden');
+  renderProgress(p);
+  $('log').classList.remove('hidden');
+  setTitle(p ? `Scanning (${p.step} of ${p.total})` : 'Scanning');
+  show('viewScan', 'scanTitle');
+}
+function renderProgress(p) {
+  if (!p) { $('progressText').textContent = 'Starting…'; $('progressBar').value = 0; return; }
+  $('progressText').textContent = `Step ${p.step} of ${p.total}: ${p.label}`;
+  $('progressBar').max = p.total;
+  $('progressBar').value = p.step;
+  if (ui.view === 'viewScan') setTitle(`Scanning (${p.step} of ${p.total})`);
+}
+
+function showFailed(message) {
+  const r = ui.status.readiness;
+  $('scanTitle').textContent = 'The scan did not finish';
+  $('scanSub').textContent = r.state === 'ready' ? 'Check that the phone is unlocked and the cable is firmly plugged in, then try again.' : 'The phone is not ready right now. Follow the advice at the top of the page, then try again.';
+  $('failText').textContent = message;
+  $('failBox').classList.remove('hidden');
+  $('scanningBox').classList.add('hidden');
+  $('readyBox').classList.remove('hidden');
+  $('extraSwitch').classList.add('hidden');
+  $('scanBtn').textContent = 'Try again';
+  $('scanBtn').disabled = r.state !== 'ready';
+  $('backToResults').classList.toggle('hidden', !ui.result);
+  $('log').classList.toggle('hidden', !$('log').textContent);
+  setTitle('Scan did not finish');
+  show('viewScan', 'scanTitle');
+}
+
+function showClosed(title, sub) {
+  ui.closed = true;
+  clearTimeout(ui.pollTimer);
+  $('closedTitle').textContent = title;
+  $('closedSub').textContent = sub;
+  renderMast(null);
+  $('advanced').classList.add('hidden');
+  $('advancedRule').classList.add('hidden');
+  setTitle('Closed');
+  show('viewClosed', 'closedTitle');
+}
+
+// ---------- log ----------
+function syncLog(lines) {
+  const l = $('log');
+  if (!lines) return;
+  l.textContent = lines.map((x) => x.text).join('\n');
+  l.scrollTop = l.scrollHeight;
+}
+function appendLog(text) {
+  const l = $('log');
+  l.textContent += (l.textContent ? '\n' : '') + text;
+  l.scrollTop = l.scrollHeight;
+}
+
+// ---------- results ----------
+async function loadResult() { ui.result = await api('/api/result'); }
+
+function renderResults(force = true) {
+  const res = ui.result;
+  const key = JSON.stringify([res.lastScanAt, res.summary, res.other, res.apps.map((a) => a.action || 0), ui.status?.busy, ui.status?.readiness?.state, ui.status?.features, ui.showAll, ui.errors]);
+  if (!force && key === ui.drawn && ui.view === 'viewResults') return;
+  ui.drawn = key;
+  const s = res.summary;
+  const r = ui.status?.readiness;
   const v = $('verdict');
+  const remaining = s.critical + s.suspicious;
   v.className = 'verdict ' + (s.critical ? 'critical' : s.suspicious ? 'suspicious' : 'ok');
-  v.textContent = s.critical ? `${s.critical} threat${s.critical === 1 ? '' : 's'} found` : s.suspicious ? `${s.suspicious} app${s.suspicious === 1 ? '' : 's'} need${s.suspicious === 1 ? 's' : ''} a look` : 'No threats found';
-  $('verdictSub').textContent = s.critical ? 'Remove them below. Each one is listed with the exact reasons it was flagged.' : s.suspicious ? 'Nothing matched known spyware, but these apps hold rights that spyware uses. Decide if you installed them on purpose.' : `${s.total} apps checked against ${s.iocCount} known indicators and behaviour rules. ${s.watch ? `${s.watch} minor note${s.watch === 1 ? '' : 's'} below.` : ''}`;
-  $('counts').innerHTML = `<div><b>${s.total}</b>apps checked</div><div><b>${s.critical}</b>critical</div><div><b>${s.suspicious}</b>suspicious</div><div><b>${s.watch}</b>to watch</div><div><b>${s.iocCount}</b>known indicators</div>`;
-  const list = showAll ? result.apps : result.flagged;
-  $('toggleAll').textContent = showAll ? 'Show only flagged apps' : `Show all ${s.total} apps`;
-  $('apps').innerHTML = list.length ? list.map(row).join('') : `<p class="muted">Nothing flagged. ${threats === 0 ? 'Every app on this phone looks normal.' : ''}</p>`;
-  $('settings').innerHTML = result.deviceFindings.length
-    ? result.deviceFindings.map((f, i) => `<div class="setting ${f.level}"><div><span class="sev">${f.level}</span>${esc(f.text)}</div>${f.fix ? `<button onclick="fix(${i})">Fix</button>` : ''}</div>`).join('')
+  v.textContent = s.critical ? `${plural(s.critical, 'threat', 'threats')} found`
+    : s.suspicious ? `${plural(s.suspicious, 'app needs', 'apps need')} a look`
+    : s.dealtWith ? 'Every flagged app has been dealt with' : 'No threats found';
+  $('verdictSub').textContent = s.critical ? 'Each one is listed below with the exact reasons it was flagged. You choose what happens to it.'
+    : s.suspicious ? 'Nothing matched known spyware, but these apps hold rights that spyware uses. Decide whether you installed them on purpose.'
+    : s.dealtWith ? 'What was done to each app is listed below. Scan again to double-check.'
+    : `${s.total} apps were checked against ${s.iocCount} known spyware indicators and behaviour rules.${s.watch ? ` ${plural(s.watch, 'minor note', 'minor notes')} below.` : ''}`;
+  $('counts').innerHTML = [
+    [s.total, 'apps checked'], [s.critical, 'critical'], [s.suspicious, 'suspicious'], [s.watch, 'to watch'],
+    ...(s.dealtWith ? [[s.dealtWith, 'dealt with']] : []),
+  ].map(([n, label]) => `<div><b>${n}</b>${label}</div>`).join('');
+  const anyFlagged = res.flagged.some((a) => a.level === 'CRITICAL' || a.level === 'SUSPICIOUS');
+  $('safety').classList.toggle('hidden', !anyFlagged);
+  $('unplugged').classList.toggle('hidden', !r || r.state === 'ready' || res.demo);
+  $('demoNote').classList.toggle('hidden', !res.demo);
+  const warnings = Array.isArray(res.warnings) ? res.warnings : [];
+  $('warnings').classList.toggle('hidden', !warnings.length);
+  $('warningsList').innerHTML = warnings.map((w) => `<li>${esc(typeof w === 'string' ? w : w.text || w.message || JSON.stringify(w))}</li>`).join('');
+
+  const list = ui.showAll ? res.apps : res.flagged;
+  $('toggleAll').textContent = ui.showAll ? 'Show only flagged apps' : `Show all ${res.apps.length} apps`;
+  $('apps').innerHTML = list.length ? list.map(appRow).join('') : '<p class="muted">Nothing flagged. Every app on this phone looks normal.</p>';
+  renderSettings();
+  renderDns();
+  setTitle(s.critical ? `${s.critical} critical` : s.suspicious ? `${s.suspicious} to check` : 'Results');
+  show('viewResults', 'verdict');
+}
+
+function appName(a) { return a.label || a.pkg; }
+function reasonList(a) {
+  const items = a.reasons.map((r) => `<li><span class="pts">+${esc(r.pts)}</span><span>${esc(r.text)}</span></li>`);
+  const vt = a.virusTotal;
+  if (vt?.known) {
+    const link = /^https:\/\//.test(String(vt.link || '')) ? ` · <a href="${esc(vt.link)}" target="_blank" rel="noopener noreferrer">details</a>` : '';
+    items.push(`<li><span class="pts"></span><span>VirusTotal: ${esc(vt.malicious)} of ${esc(vt.total)} virus scanners call it malicious${link}</span></li>`);
+  }
+  return items.length ? `<ul class="reasons">${items.join('')}</ul>` : '<p class="caption" style="margin-top:6px">Nothing unusual.</p>';
+}
+
+function appRow(a) {
+  const busy = ui.status?.busy;
+  const act = a.action;
+  const dealt = act && ['removed', 'disabled', 'suspended', 'blocked'].includes(act.outcome);
+  const title = a.label ? `${esc(a.label)} <span class="pkg">${esc(a.pkg)}</span>` : `<span>${esc(a.pkg)}</span>`;
+  let lower = ui.errors[a.pkg] ? `<div class="outcome"><p class="said">That did not work: ${esc(ui.errors[a.pkg])}</p></div>` : '';
+  if (busy && busy.pkg === a.pkg) {
+    lower = `<p class="working" aria-live="polite">${busy.kind === 'remove' ? 'Removing' : busy.kind === 'block' ? 'Taking its rights away' : 'Undoing'} · step ${busy.n || 1}: ${esc(busy.text)}…</p>`;
+  } else {
+    if (act) lower += outcomeBlock(act, a);
+    const canAct = a.level !== 'OK' && (!act || act.outcome === 'failed');
+    const locked = !!busy || ui.status?.scanning;
+    if (canAct) {
+      lower += `<div class="actions row">
+        <button type="button" class="primary" data-act="remove" data-pkg="${esc(a.pkg)}" ${locked ? 'disabled' : ''} aria-label="Remove ${esc(appName(a))} from the phone">Remove from phone</button>
+        <button type="button" data-act="block" data-pkg="${esc(a.pkg)}" ${locked ? 'disabled' : ''} aria-label="Keep ${esc(appName(a))}, but take its rights away">Keep, but take its rights away</button>
+        ${a.system ? '<span class="caption">This came with the phone: it will be turned off, not deleted.</span>' : ''}
+      </div>`;
+    }
+    if (act?.outcome === 'blocked' && ui.status?.features?.undoBlock) {
+      lower += `<div class="actions row"><button type="button" data-act="undo-block" data-pkg="${esc(a.pkg)}" ${busy ? 'disabled' : ''} aria-label="Undo: let ${esc(appName(a))} open again">Undo (let the app open again)</button></div>`;
+    }
+  }
+  const status = { removed: ' · removed', disabled: ' · turned off', suspended: ' · paused', blocked: ' · rights taken away' }[act?.outcome] || '';
+  return `<div class="finding ${esc(a.level)}${dealt ? ' dealt' : ''}" id="app-${esc(a.pkg)}"><div class="bar"></div><div>
+    <h3><span class="sev">${LEVEL_WORD[a.level] || esc(a.level)}${status}</span> ${title}<span class="score">score ${esc(a.score)}</span></h3>
+    ${dealt && act.outcome === 'removed' ? '' : reasonList(a)}
+    ${lower}</div></div>`;
+}
+
+function outcomeBlock(act, a) {
+  const said = act.demo ? 'Nothing was changed: this is a demo recording, not a real phone.'
+    : act.outcome === 'removed' ? 'Removed. The app is gone from the phone.'
+    : act.outcome === 'disabled' ? 'Turned off. The phone did not allow uninstalling it, but it can no longer run and its data was wiped.'
+    : act.outcome === 'suspended' ? 'Paused. The phone did not allow uninstalling or turning it off, but it can no longer open or run.'
+    : act.outcome === 'blocked' ? 'Rights taken away. The app is still installed but can no longer listen, watch, read messages or run in the background.'
+    : act.manualSteps?.length ? 'This did not fully work. Finish it on the phone with the steps below.'
+    : 'This did not fully work. The list below shows which step the phone refused.';
+  const undoNote = act.undoFailed ? '<p class="caption" style="margin-top:6px">Undo did not fully work; see the steps below.</p>' : '';
+  const notes = (act.warnings || []).map((w) => `<p class="caption" style="margin-top:6px">${esc(w)}</p>`).join('');
+  return `<div class="outcome" aria-live="polite"><p class="said">${esc(said)}</p>${undoNote}${manualList(act.manualSteps)}${notes}${stepsList(act.steps)}</div>`;
+}
+function stepsList(steps) {
+  if (!steps?.length) return '';
+  const list = `<ul class="steps" aria-label="What was done">${steps.map((s) => `<li><span class="word">${s.ok ? 'Done' : 'Did not work'}</span><span>${esc(s.action)}${s.text ? ` · ${esc(s.text)}` : ''}</span></li>`).join('')}</ul>`;
+  if (steps.length <= 6) return list;
+  // a long list is detail, not the message: keep it one click away
+  const failed = steps.filter((s) => !s.ok).length;
+  return `<details class="steps-more"><summary>Every step on the phone (${steps.length}, ${failed ? `${failed} did not work` : 'all done'})</summary>${list}</details>`;
+}
+function manualList(items) {
+  if (!items?.length) return '';
+  return `<div class="manual"><p><b>Do this on the phone:</b></p><ol>${items.map((t) => `<li>${esc(t)}</li>`).join('')}</ol></div>`;
+}
+
+function renderSettings() {
+  const res = ui.result;
+  const busy = ui.status?.busy;
+  $('settings').innerHTML = res.deviceFindings.length
+    ? res.deviceFindings.map((f, i) => {
+      const done = res.other?.[`fix:${i}`];
+      const working = busy && busy.key === `fix:${i}`;
+      const btn = f.fix && !done?.ok ? `<button type="button" data-act="fix" data-index="${i}" ${busy ? 'disabled' : ''} aria-label="Fix: ${esc(f.text)}">Fix</button>` : '';
+      const err = ui.errors[`fix:${i}`];
+      const below = working ? `<p class="working">Changing the setting…</p>` : err ? `<div class="outcome"><p class="said">That did not work: ${esc(err)}</p></div>` : done ? `<div class="outcome"><p class="said">${done.demo ? 'Nothing was changed: this is a demo recording.' : done.ok ? 'Fixed.' : 'The phone refused this change.'}</p>${stepsList(done.steps)}${manualList(done.manualSteps)}</div>` : '';
+      return `<div class="setting ${esc(f.level)}"><div class="line"><div><span class="sev">${LEVEL_WORD[f.level] || esc(f.level)}</span> ${esc(f.text)}</div>${btn}</div>${below}</div>`;
+    }).join('')
     : '<p class="muted">Nothing to report.</p>';
 }
 
-function row(a) {
-  const name = a.label ? `${esc(a.label)} <span class="pkg">${esc(a.pkg)}</span>` : esc(a.pkg);
-  const reasons = a.reasons.length ? `<ul class="reasons">${a.reasons.map((r) => `<li data-pts="${r.pts}">${esc(r.text)}</li>`).join('')}</ul>` : '<p class="caption" style="margin-top:6px">Nothing unusual.</p>';
-  const vt = a.virusTotal?.known ? `<li data-pts="">VirusTotal: ${a.virusTotal.malicious} of ${a.virusTotal.total} engines call it malicious · <a href="${esc(a.virusTotal.link)}" target="_blank" rel="noopener">details</a></li>` : '';
-  const actions = a.level === 'OK' ? '' : `<div class="actions row">
-      <button class="critical" onclick="removeApp('${a.pkg}')">Remove from phone</button>
-      <button onclick="blockApp('${a.pkg}')">Keep, but take its rights away</button>
-      ${a.system ? '<span class="caption">System app: it will be disabled, not deleted.</span>' : ''}
-    </div>`;
-  return `<div class="finding ${a.level}" id="app-${cssId(a.pkg)}"><div class="bar"></div><div>
-    <h3><span class="sev">${a.level}</span>${name}<span class="score">score ${a.score}</span></h3>
-    ${reasons.replace('</ul>', vt + '</ul>')}
-    ${actions}<div class="steps hidden"></div></div></div>`;
+function renderDns() {
+  const busy = ui.status?.busy;
+  const done = ui.result?.other?.dns;
+  $('dnsOn').disabled = $('dnsOff').disabled = !!busy || !!ui.status?.scanning;
+  $('dnsOut').innerHTML = busy && busy.key === 'dns' ? `<p class="working">${esc(busy.text)}…</p>`
+    : ui.errors.dns ? `<div class="outcome"><p class="said">That did not work: ${esc(ui.errors.dns)}</p></div>`
+    : done ? `<div class="outcome"><p class="said">${done.demo ? 'Nothing was changed: this is a demo recording.' : done.ok ? (done.kind === 'dns-on' ? 'Protection is on.' : 'Protection is off. Private DNS is back to automatic.') : 'The phone refused this change.'}</p>${stepsList(done.steps)}${manualList(done.manualSteps)}</div>` : '';
 }
 
-function showSteps(el, out) {
-  el.classList.remove('hidden');
-  el.innerHTML = out.steps.map((s) => `<div class="${s.ok ? 'ok' : 'fail'}">${s.ok ? 'Done' : 'Failed'} · ${esc(s.action)}${s.text ? ` — ${esc(s.text)}` : ''}</div>`).join('');
+function fillDnsOptions(dns) {
+  const sel = $('dnsProvider');
+  if (sel.options.length || !dns) return;
+  for (const [k, v] of Object.entries(dns)) { const o = document.createElement('option'); o.value = k; o.textContent = v.label; sel.append(o); }
 }
-async function removeApp(pkg) {
-  const a = result.apps.find((x) => x.pkg === pkg);
-  if (!confirm(`Remove "${a?.label || pkg}" from the phone?\n\nIts data on the phone is deleted too. Not sure? Use "Keep, but take its rights away" instead.`)) return;
-  const el = $('app-' + cssId(pkg)).querySelector('.steps'); el.classList.remove('hidden'); el.textContent = 'Working…';
-  try { const out = await api('/api/remove', { pkg }); showSteps(el, out); if (out.removed) $('app-' + cssId(pkg)).style.opacity = .55; }
-  catch (e) { el.innerHTML = `<div class="fail">Failed · ${esc(e.message)}</div>`; }
+
+// ---------- confirm dialog ----------
+function ask({ title, body, ok }) {
+  return new Promise((resolve) => {
+    const d = $('dlg');
+    $('dlgTitle').textContent = title;
+    $('dlgBody').innerHTML = body;
+    $('dlgOk').textContent = ok;
+    const done = (v) => { d.close(); resolve(v); };
+    $('dlgOk').onclick = () => done(true);
+    $('dlgCancel').onclick = () => done(false);
+    d.oncancel = (e) => { e.preventDefault(); done(false); };
+    d.showModal();
+    $('dlgCancel').focus();
+  });
 }
-async function blockApp(pkg) {
-  const el = $('app-' + cssId(pkg)).querySelector('.steps'); el.classList.remove('hidden'); el.textContent = 'Working…';
-  try { showSteps(el, await api('/api/block', { pkg })); } catch (e) { el.innerHTML = `<div class="fail">Failed · ${esc(e.message)}</div>`; }
+
+// ---------- actions ----------
+async function act(kind, pkg) {
+  const a = ui.result.apps.find((x) => x.pkg === pkg);
+  const name = a ? appName(a) : pkg;
+  if (kind === 'remove') {
+    const sys = a?.system;
+    const ok = await ask({
+      title: `Remove "${name}" from the phone?`,
+      ok: `Remove ${name.length > 24 ? 'it' : name}`,
+      body: `<p style="margin-top:12px">What will happen, in this order:</p><ol>
+        <li>Its special rights (accessibility, device administrator, notification access) are switched off, so it cannot block the removal.</li>
+        <li>The app is stopped${sys ? '' : ', uninstalled, and its data on the phone is deleted'}.</li>
+        <li>${sys ? 'It came with the phone, so it is turned off and its data wiped instead of being deleted.' : 'If the phone does not allow uninstalling it, it is turned off and its data wiped instead.'}</li>
+        <li>Android Guardian checks that it is really gone.</li></ol>
+        <p class="caption" style="margin-top:12px">The person who installed it may notice it is gone. If you may need proof, <a href="/api/report.html" download>save the report</a> first.</p>`,
+    });
+    if (!ok) return;
+  } else if (kind === 'block') {
+    const ok = await ask({
+      title: `Take away the rights of "${name}"?`,
+      ok: 'Take its rights away',
+      body: `<p style="margin-top:12px">The app stays installed, but:</p><ol>
+        <li>Its special rights (accessibility, device administrator, notification access) are switched off.</li>
+        <li>Its access to the microphone, camera, messages, call history, location and contacts is taken away.</li>
+        <li>It may no longer run in the background, draw over other apps or use the internet in the background.</li></ol>
+        <p class="caption" style="margin-top:12px">${ui.status?.features?.undoBlock ? 'On newer phones the app is also paused so it cannot open. You can undo the pause here afterwards; permissions you want back are given in the phone\'s Settings › Apps.' : 'To give rights back later, use the phone: Settings › Apps.'}</p>`,
+    });
+    if (!ok) return;
+  }
+  delete ui.errors[pkg];
+  ui.status.busy = { kind, pkg, n: 0, text: 'Starting' };
+  renderResults();
+  try { await api(`/api/${kind}`, { pkg }); }
+  catch (e) { ui.errors[pkg] = e.message; }
+  await afterAction('app-' + pkg);
 }
-async function fix(i) {
-  const f = result.deviceFindings[i];
-  try { const out = await api('/api/fix', { cmd: f.fix }); alert(out.ok ? 'Done.' : 'The phone refused: ' + out.steps.map((s) => s.text).join(' ')); } catch (e) { alert(e.message); }
+async function afterAction(focusRowId) {
+  try { ui.status = await api('/api/status'); await loadResult(); } catch { /* the poll will catch up */ }
+  if (ui.status) ui.status.busy = null;
+  renderResults();
+  // the row was redrawn: put keyboard focus on what happened, not back at the top of the page
+  const row = focusRowId && document.getElementById(focusRowId);
+  if (row) { const t = row.querySelector('.outcome .said, button'); if (t) { t.tabIndex = t.tagName === 'BUTTON' ? 0 : -1; t.focus(); } }
+}
+
+async function fix(index) {
+  delete ui.errors[`fix:${index}`];
+  ui.status.busy = { kind: 'fix', key: `fix:${index}`, n: 0, text: 'Starting' };
+  renderSettings();
+  try { await api('/api/fix', { index }); } catch (e) { ui.errors[`fix:${index}`] = e.message; }
+  await afterAction();
 }
 async function dns(on) {
-  const el = $('dnsSteps'); el.classList.remove('hidden'); el.textContent = 'Working…';
-  try { showSteps(el, await api('/api/dns', { on, provider: $('dnsProvider').value })); } catch (e) { el.innerHTML = `<div class="fail">Failed · ${esc(e.message)}</div>`; }
-}
-async function startScan() {
-  result = null; show('viewScan'); $('log').classList.remove('hidden'); $('log').textContent = ''; $('scanBtn').disabled = true; $('scanBtn').textContent = 'Scanning…'; $('scanTitle').textContent = 'Scanning…';
-  await api('/api/scan', {});
+  ui.status.busy = { kind: on ? 'dns-on' : 'dns-off', key: 'dns', n: 0, text: on ? 'Turning protection on' : 'Turning protection off' };
+  delete ui.errors.dns;
+  renderDns();
+  try { await api('/api/dns', { on, provider: $('dnsProvider').value }); } catch (e) { ui.errors.dns = e.message; }
+  await afterAction();
 }
 
-$('recheck').onclick = () => { clearTimeout(pollTimer); refreshStatus(); };
+async function startScan() {
+  $('scanBtn').disabled = true;
+  ui.hideFailure = false;
+  $('log').textContent = '';
+  try {
+    await api('/api/scan', {});
+  } catch (e) {
+    if (e.status !== 409) { $('scanBtn').disabled = false; showFailed(e.message); return; }
+  }
+  ui.result = null;
+  ui.status.scanning = true;
+  ui.status.scanError = null;
+  ui.status.progress = null;
+  showScanning();
+}
+
+async function quit() {
+  const s = ui.status;
+  if (s?.scanning || s?.busy) {
+    const ok = await ask({ title: 'Quit while the phone is busy?', ok: 'Quit anyway', body: `<p style="margin-top:12px">${s.scanning ? 'A scan is still running. It will stop and you will have to start it again.' : 'A change is still being made on the phone. Quitting now may leave it half done.'}</p>` });
+    if (!ok) return;
+  }
+  try { await api('/api/quit', {}); } catch { /* it may already be gone */ }
+  showClosed('Android Guardian has closed', 'You can close this tab. To use it again, open Android Guardian from the Start menu or the Desktop.');
+  es?.close();
+}
+
+// ---------- wiring ----------
+document.addEventListener('click', (e) => {
+  const b = e.target.closest('button[data-act]');
+  if (!b || b.disabled) return;
+  if (b.dataset.act === 'fix') fix(Number(b.dataset.index));
+  else act(b.dataset.act, b.dataset.pkg);
+});
+$('recheck').onclick = () => { $('recheck').disabled = true; refreshStatus().finally(() => { $('recheck').disabled = false; }); };
 $('scanBtn').onclick = startScan;
 $('rescan').onclick = startScan;
-$('toggleAll').onclick = () => { showAll = !showAll; render(); };
-$('dnsOn').onclick = () => dns(true); $('dnsOff').onclick = () => dns(false);
-$('iocBtn').onclick = async () => { $('iocNote').textContent = 'Updating…'; try { const r = await api('/api/refresh-iocs', {}); $('iocNote').textContent = `${r.count} indicators, list dated ${(r.updated || '').slice(0, 10)}.`; } catch { $('iocNote').textContent = 'Could not update (offline?). Using the stored copy.'; } };
-$('vtSave').onclick = async () => { await api('/api/settings', { vtApiKey: $('vtKey').value }); $('vtKey').value = ''; loadSettings(); };
-async function loadSettings() { try { const s = await api('/api/settings'); $('vtNote').textContent = s.vtApiKeySet ? `Key saved (${s.vtApiKeyHint}). Clear the field and save to remove.` : 'No key saved.'; } catch { /* ignore */ } }
+$('backToResults').onclick = () => { ui.hideFailure = true; decideView(); };
+$('toggleAll').onclick = () => { ui.showAll = !ui.showAll; renderResults(); };
+$('dnsOn').onclick = () => dns(true);
+$('dnsOff').onclick = () => dns(false);
+$('quit').onclick = quit;
+$('iocBtn').onclick = async () => {
+  $('iocBtn').disabled = true; $('iocNote').textContent = 'Updating…';
+  try { const r = await api('/api/refresh-iocs', {}); $('iocNote').textContent = `${r.count} indicators, list dated ${(r.updated || 'unknown').slice(0, 10)}.`; }
+  catch { $('iocNote').textContent = 'Could not update (is this computer offline?). The stored copy is used.'; }
+  $('iocBtn').disabled = false;
+};
+async function saveKey(value) {
+  try { await api('/api/settings', { vtApiKey: value }); $('vtKey').value = ''; await loadSettings(); }
+  catch (e) { $('vtNote').textContent = e.message; }
+}
+$('vtSave').onclick = () => saveKey($('vtKey').value);
+$('vtClear').onclick = () => saveKey('');
+$('openReports').onclick = async () => {
+  try { const r = await api('/api/open-reports', {}); $('reportsPath').textContent = r.opened ? `Opened ${r.path}` : r.path; }
+  catch (e) { $('reportsPath').textContent = e.message; }
+};
+async function loadSettings() {
+  try {
+    const s = await api('/api/settings');
+    $('vtNote').textContent = s.vtApiKeySet ? `A key is saved (ending ${s.vtApiKeyHint.replace('…', '')}).` : 'No key saved.';
+    $('vtClear').disabled = !s.vtApiKeySet;
+    if (!$('reportsPath').textContent) $('reportsPath').textContent = s.reportsDir || '';
+  } catch { /* shown by the status check */ }
+}
 
-const es = new EventSource('/api/events');
-es.addEventListener('log', (e) => { const { text } = JSON.parse(e.data); const l = $('log'); l.classList.remove('hidden'); l.textContent += (l.textContent ? '\n' : '') + text; l.scrollTop = 1e9; });
-es.addEventListener('scan', async (e) => { const d = JSON.parse(e.data); if (d.status === 'done') { await loadResult(); window.scrollTo({ top: 0, behavior: 'smooth' }); } if (d.status === 'failed') { $('scanBtn').disabled = false; $('scanBtn').textContent = 'Scan this phone'; $('scanTitle').textContent = 'The scan did not finish'; } });
+let es = null;
+function connectEvents() {
+  es = new EventSource('/api/events');
+  es.addEventListener('log', (e) => appendLog(JSON.parse(e.data).text));
+  es.addEventListener('progress', (e) => { if (ui.status) ui.status.progress = JSON.parse(e.data); renderProgress(ui.status?.progress); });
+  es.addEventListener('scan', async (e) => {
+    const d = JSON.parse(e.data);
+    if (!ui.status) return;
+    if (d.status === 'started') { ui.result = null; ui.status.scanning = true; ui.status.scanError = null; showScanning(); }
+    if (d.status === 'done') { ui.status.scanning = false; ui.status.scanError = null; ui.showAll = false; await loadResult(); ui.status.hasResult = true; decideView(); window.scrollTo({ top: 0, behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' }); }
+    if (d.status === 'failed') { ui.status.scanning = false; ui.status.scanError = { message: d.error }; ui.hideFailure = false; await refreshStatus(); }
+  });
+  es.addEventListener('action', (e) => {
+    const d = JSON.parse(e.data);
+    if (!ui.status || !ui.result) return;
+    if (d.phase === 'done') return; // the tab that asked reloads the result; other tabs catch up below
+    ui.status.busy = d;
+    if (d.pkg) { const row = document.getElementById('app-' + d.pkg); const w = row?.querySelector('.working'); if (w) w.textContent = `${d.kind === 'remove' ? 'Removing' : d.kind === 'block' ? 'Taking its rights away' : 'Undoing'} · step ${d.n || 1}: ${d.text}…`; else renderResults(); }
+    else if (d.key === 'dns') renderDns(); else renderSettings();
+  });
+  es.addEventListener('action', (e) => { const d = JSON.parse(e.data); if (d.phase === 'done' && ui.result) setTimeout(catchUp, 300); });
+  // another tab (or this one) finished a change: redraw only if what is shown is out of date
+  async function catchUp() { try { ui.status = await api('/api/status'); await loadResult(); renderResults(false); } catch { /* next poll */ } }
+  es.addEventListener('quit', () => { es.close(); showClosed('Android Guardian has closed', 'You can close this tab. To use it again, open Android Guardian from the Start menu or the Desktop.'); });
+  es.onerror = () => { if (!ui.closed) setTimeout(refreshStatus, 1000); };
+}
 
-refreshStatus(); loadSettings();
+connectEvents();
+refreshStatus();
+loadSettings();
 </script>
 </body>
 </html>

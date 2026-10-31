@@ -4,44 +4,136 @@ on:
   push:
     branches: [main]
   pull_request:
+  workflow_dispatch:
 
 permissions:
   contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+# Every action is pinned to a full commit SHA (supply-chain rule). The comment names the release.
+# To update one: gh api repos/<owner>/<repo>/git/ref/tags/<tag>  (dereference annotated tags to the commit).
 
 jobs:
   test:
     name: Tests (${{ matrix.os }})
     runs-on: ${{ matrix.os }}
+    timeout-minutes: 15
     strategy:
+      fail-fast: false
       matrix:
-        os: [ubuntu-latest, windows-latest]
+        os: [ubuntu-24.04, windows-2025]
     steps:
-      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
-      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: 22
       - run: node test/run.mjs
       - run: node build.mjs --ui-only
 
-  package:
-    name: Build Windows package
-    runs-on: windows-latest
-    needs: test
+  lint-installer:
+    name: Installer script analysis
+    runs-on: windows-2025
+    timeout-minutes: 10
     steps:
-      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
-      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Parse with Windows PowerShell 5.1 and run PSScriptAnalyzer (errors fail the job)
+        shell: powershell
+        run: |
+          $ErrorActionPreference = 'Stop'
+          foreach ($f in Get-ChildItem installer\*.ps1) {
+            $errs = $null
+            [void][System.Management.Automation.Language.Parser]::ParseFile($f.FullName, [ref]$null, [ref]$errs)
+            if ($errs) { $errs | Format-List | Out-String | Write-Host; throw "$($f.Name) does not parse in PowerShell 5.1" }
+            if (Select-String -Path $f.FullName -Pattern '[^\x00-\x7F]' -Quiet) { throw "$($f.Name) contains non-ASCII characters (5.1 reads BOM-less files as ANSI)" }
+          }
+          if (Get-Module -ListAvailable PSScriptAnalyzer) {
+            $r = Invoke-ScriptAnalyzer -Path installer -Recurse -Severity Error
+            $r | Format-Table -AutoSize | Out-String | Write-Host
+            if ($r) { throw 'PSScriptAnalyzer reported errors' }
+          } else { Write-Host 'PSScriptAnalyzer not on this runner image; parse check only.' }
+
+  package:
+    name: Windows package + installer round trip
+    runs-on: windows-2025
+    needs: test
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: 22
-      - uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2
-      - name: Build (downloads adb and aapt2 from Google)
-        run: node build.mjs
-      - name: Smoke test the exe
-        run: dist\AndroidGuardian\AndroidGuardian.exe status
-        shell: cmd
-        continue-on-error: true
-      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+      - uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2.2.0
+        with:
+          bun-version: 1.4.3
+      - name: Build (pinned adb and aapt2 from Google, SHA-1 checked)
+        run: node build.mjs --pinned-tools
+      - name: Installer round trip (install 5.1, upgrade with pwsh keeping data, uninstall -Quiet)
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $dest = Join-Path $env:LOCALAPPDATA 'Programs\AndroidGuardian'
+          $key  = 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Uninstall\AndroidGuardian'
+          $zip  = (Get-ChildItem dist\AndroidGuardian-win64-*.zip).FullName
+
+          # 1. fresh install from the folder, Windows PowerShell 5.1
+          powershell -NoProfile -ExecutionPolicy Bypass -File installer\install.ps1 -Local dist\AndroidGuardian -NoLaunch -NoShortcuts
+          if ($LASTEXITCODE) { throw "install exited $LASTEXITCODE" }
+          if (-not (Test-Path "$dest\AndroidGuardian.exe")) { throw 'exe not installed' }
+          if ((Get-ItemProperty $key).DisplayVersion -ne (Get-Content dist\AndroidGuardian\VERSION).Trim()) { throw 'registry version wrong' }
+
+          # 2. user data that an upgrade must keep
+          Set-Content "$dest\data\config.json" '{"kept":true}'
+          New-Item -ItemType Directory "$dest\reports\scan-1" -Force | Out-Null
+          Set-Content "$dest\reports\scan-1\report.html" 'evidence'
+
+          # 3. upgrade in place from the zip, PowerShell 7, with shortcuts
+          pwsh -NoProfile -File installer\install.ps1 -Local $zip -NoLaunch
+          if ($LASTEXITCODE) { throw "upgrade exited $LASTEXITCODE" }
+          if ((Get-Content "$dest\data\config.json" -Raw) -notmatch 'kept') { throw 'config.json was overwritten' }
+          if (-not (Test-Path "$dest\reports\scan-1\report.html")) { throw 'reports were lost' }
+          $lnk = Join-Path ([Environment]::GetFolderPath('Programs')) 'Android Guardian.lnk'
+          if (-not (Test-Path $lnk)) { throw 'Start Menu shortcut missing' }
+
+          # 4. a modified package must be refused before anything is touched (exit 4)
+          Copy-Item dist\AndroidGuardian "$env:RUNNER_TEMP\tampered" -Recurse
+          Add-Content "$env:RUNNER_TEMP\tampered\README.md" 'tampered'
+          powershell -NoProfile -ExecutionPolicy Bypass -File installer\install.ps1 -Local "$env:RUNNER_TEMP\tampered" -NoLaunch -NoShortcuts
+          if ($LASTEXITCODE -ne 4) { throw "tampered package was not refused (exit $LASTEXITCODE)" }
+          if ((Get-Content "$dest\README.md" -Raw) -match 'tampered') { throw 'tampered file reached the install folder' }
+
+          # 5. quiet uninstall, exactly the command line Settings / winget would run
+          $quiet = (Get-ItemProperty $key).QuietUninstallString
+          Write-Host "QuietUninstallString: $quiet"
+          Invoke-Expression "& $quiet"
+          if ($LASTEXITCODE) { throw "uninstall exited $LASTEXITCODE" }
+          $left = @($dest, $key, $lnk, (Join-Path ([Environment]::GetFolderPath('Desktop')) 'Android Guardian.lnk')) | Where-Object { Test-Path $_ }
+          if ($left) { throw "left behind: $($left -join ', ')" }
+          $saved = Join-Path ([Environment]::GetFolderPath('Desktop')) 'Android Guardian reports\scan-1\report.html'
+          if (-not (Test-Path $saved)) { throw 'quiet uninstall did not keep the reports' }
+          Write-Host 'Installer round trip passed.'
+      - name: Smoke test the compiled exe
+        shell: pwsh
+        run: |
+          $exe = 'dist\AndroidGuardian\AndroidGuardian.exe'
+          & $exe --version
+          if ($LASTEXITCODE) { throw "--version exited $LASTEXITCODE" }
+          & $exe status            # no phone on the runner: 2 means "not ready", anything else is a crash
+          if ($LASTEXITCODE -ne 2) { throw "status exited $LASTEXITCODE, expected 2 (no phone)" }
+          & $exe scan --replay test\fixtures\infected --offline | Select-Object -Last 5
+          if ($LASTEXITCODE -ne 3) { throw "replayed infected phone exited $LASTEXITCODE, expected 3 (critical)" }
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: AndroidGuardian-win64
           path: |
-            dist/*.zip
+            dist/AndroidGuardian-win64-*.zip
             dist/SHA256SUMS.txt
+          if-no-files-found: error

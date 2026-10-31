@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>component · phone bar</title>
+<link rel="stylesheet" href="../tokens.css">
+<style>
+/* Component: the phone bottom bar.
+   Parameters measured from the reference video (frame deskewed 21.3°, bar height H = 105 px there):
+     notch width 1.49 H · notch depth 0.45 H · notch half-curve cubic c1 (0.10, 0) c2 (0.80, 1), fit error 0.04 ·
+     ball diameter 0.50 H · tab change 300 ms, ease-in-out (tracked over 10 frames, fit error 0.07).
+   Deliberate deviation: ball 0.60 H because it carries a word, not an icon. */
+html,body{margin:0;background:var(--paper);color:var(--ink);font:var(--fs-body)/1.5 system-ui,"Segoe UI",Roboto,sans-serif}
+.stage{position:relative;width:390px;height:260px;background:var(--paper);overflow:hidden}
+.tabbar{
+  --h:96px;
+  --notch-w:calc(var(--h) * 1.49);   /* 143 */
+  --notch-d:calc(var(--h) * .45);    /* 43  */
+  --ball:calc(var(--h) * .60);       /* 58  */
+  --sink:calc(var(--h) * .08);       /* ball centre sits 8% of H below the bar's top edge, inside the wave */
+  --n:4;--active:2;--dur:300ms;--ease:cubic-bezier(.45,0,.55,1);
+  position:absolute;left:0;right:0;bottom:0;height:var(--h);color:var(--rail-ink)}
+.tabbar svg{position:absolute;left:0;top:calc(-1 * var(--notch-d));width:100%;height:calc(var(--h) + var(--notch-d));overflow:visible}
+.tabbar path{transition:d var(--dur) var(--ease)}
+.tabbar ol{list-style:none;margin:0;padding:0 0 22px;position:absolute;inset:0;display:grid;grid-template-columns:repeat(var(--n),1fr);align-items:end}
+.tabbar li{text-align:center;font-size:var(--fs-caption);color:var(--rail-ink-2);cursor:pointer;transition:opacity var(--dur) var(--ease)}
+.tabbar li.active{opacity:0}
+.ball{position:absolute;top:calc(var(--sink) - var(--ball) / 2);left:0;width:var(--ball);height:var(--ball);border-radius:50%;
+  transform:translateX(calc((var(--active) + .5) * 390px / var(--n) - var(--ball) / 2));
+  background:var(--rail);color:var(--rail-ink);display:grid;place-items:center;font-size:var(--fs-caption);font-weight:600;box-shadow:var(--lift-shadow,0 10px 26px rgba(0,0,0,.22));
+  transition:transform var(--dur) var(--ease)}
+:root[data-theme="dark"] .ball{--lift-shadow:0 6px 20px rgba(0,0,0,.6)}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]) .ball{--lift-shadow:0 6px 20px rgba(0,0,0,.6)}}
+@media(prefers-reduced-motion:reduce){.tabbar path,.ball,.tabbar li{transition:none}}
+</style>
+</head>
+<body>
+<div class="stage">
+  <p style="position:absolute;left:24px;top:24px;margin:0;max-width:300px;color:var(--ink-2);font-size:var(--fs-caption)">Scanned from your computer at 03:14.<br>Open Android Guardian on the PC to remove them.</p>
+  <nav class="tabbar" aria-label="Sections">
+    <svg viewBox="0 0 390 139" preserveAspectRatio="none" aria-hidden="true"><path id="barpath" fill="var(--rail)"/></svg>
+    <ol><li data-i="0">Home</li><li data-i="1">Apps</li><li data-i="2" class="active">Protect</li><li data-i="3">Settings</li></ol>
+    <div class="ball" id="ball">Protect</div>
+  </nav>
+</div>
+<script>
+// Notch path from the measured parameters. Box: width 390, height = notch depth + bar height; baseline y = depth.
+const bar = document.querySelector('.tabbar'), path = document.getElementById('barpath'), ball = document.getElementById('ball');
+const H = 96, W = 390, D = H * 0.45, NW = H * 1.49, C1 = 0.10, C2 = 0.80, N = 4;
+function notchPath(cx) {
+  const hw = NW / 2, l = cx - hw, r = cx + hw;
+  return `M0 ${D} H${l.toFixed(1)} C${(l + C1 * hw).toFixed(1)} ${D} ${(l + C2 * hw).toFixed(1)} ${(D + D).toFixed(1)} ${cx.toFixed(1)} ${(D + D).toFixed(1)} C${(r - C2 * hw).toFixed(1)} ${(D + D).toFixed(1)} ${(r - C1 * hw).toFixed(1)} ${D} ${r.toFixed(1)} ${D} H${W} V${D + H} H0 Z`;
+}
+function activate(i) {
+  bar.style.setProperty('--active', i);
+  path.style.d = `path("${notchPath((i + 0.5) * W / N)}")`;
+  bar.querySelectorAll('li').forEach((li) => li.classList.toggle('active', +li.dataset.i === i));
+  ball.textContent = bar.querySelector(`li[data-i="${i}"]`).textContent;
+}
+bar.querySelectorAll('li').forEach((li) => li.addEventListener('click', () => activate(+li.dataset.i)));
+activate(2);
+</script>
+</body>
+</html>

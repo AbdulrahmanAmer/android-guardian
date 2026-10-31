@@ -1,29 +1,82 @@
 name: Release
 
+# Push a tag vX.Y.Z (matching "version" in package.json) to build and publish a release.
+# Or run it by hand (Actions > Release > Run workflow) with a tag: publish=false only builds and
+# uploads the package as a workflow artifact, publish=true also creates the GitHub release.
+
 on:
   push:
     tags: ['v*']
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Existing tag to build, for example v0.1.0'
+        required: true
+        type: string
+      publish:
+        description: 'Create the GitHub release (otherwise build only)'
+        required: false
+        type: boolean
+        default: false
 
 permissions:
-  contents: write
+  contents: read
+
+concurrency:
+  group: release-${{ github.event.inputs.tag || github.ref }}
+  cancel-in-progress: false
 
 jobs:
   release:
     name: Build and publish Windows package
-    runs-on: windows-latest
+    runs-on: windows-2025
+    timeout-minutes: 30
+    permissions:
+      contents: write   # only this job, only to create the release
+    env:
+      TAG: ${{ github.event.inputs.tag || github.ref_name }}
+      PUBLISH: ${{ github.event_name == 'push' || github.event.inputs.publish == 'true' }}
     steps:
-      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
-      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.event.inputs.tag || github.ref }}
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: 22
-      - uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2
+      - uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2.2.0
+        with:
+          bun-version: 1.4.3
+      - name: Tag must match package.json
+        shell: pwsh
+        run: |
+          $v = (Get-Content package.json -Raw | ConvertFrom-Json).version
+          if ($env:TAG -ne "v$v") { throw "Tag $env:TAG does not match package.json version $v" }
       - run: node test/run.mjs
-      - name: Build
-        run: node build.mjs
+      - name: Build (pinned adb and aapt2 from Google, SHA-1 checked)
+        run: node build.mjs --pinned-tools
+      - name: Installer round trip
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          powershell -NoProfile -ExecutionPolicy Bypass -File installer\install.ps1 -Local (Get-ChildItem dist\AndroidGuardian-win64-*.zip).FullName -NoLaunch -NoShortcuts
+          if ($LASTEXITCODE) { throw "install exited $LASTEXITCODE" }
+          powershell -NoProfile -ExecutionPolicy Bypass -File "$env:LOCALAPPDATA\Programs\AndroidGuardian\uninstall.ps1" -Quiet
+          if ($LASTEXITCODE) { throw "uninstall exited $LASTEXITCODE" }
+          if (Test-Path "$env:LOCALAPPDATA\Programs\AndroidGuardian") { throw 'folder left behind' }
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: AndroidGuardian-win64-${{ env.TAG }}
+          path: |
+            dist/AndroidGuardian-win64-*.zip
+            dist/SHA256SUMS.txt
+          if-no-files-found: error
       - name: Publish release
+        if: env.PUBLISH == 'true'
         env:
           GH_TOKEN: ${{ github.token }}
         shell: pwsh
         run: |
-          $tag = "${{ github.ref_name }}"
-          gh release create $tag (Get-ChildItem dist/*.zip).FullName dist/SHA256SUMS.txt --title "Android Guardian $tag" --generate-notes
+          $zip = (Get-ChildItem dist\AndroidGuardian-win64-*.zip).FullName
+          gh release create $env:TAG $zip dist\SHA256SUMS.txt --repo $env:GITHUB_REPOSITORY --verify-tag --title "Android Guardian $env:TAG" --generate-notes
+          if ($LASTEXITCODE) { throw "gh release create exited $LASTEXITCODE" }

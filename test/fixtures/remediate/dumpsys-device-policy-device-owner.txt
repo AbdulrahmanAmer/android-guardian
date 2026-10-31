@@ -1,0 +1,29 @@
+Current Device Policy Manager state:
+  Immutable state:
+    mHasFeature=true
+    mIsWatch=false
+  Device Owner: 
+    admin=ComponentInfo{com.evil.mdm/com.evil.mdm.AdminReceiver}
+    name=
+    package=com.evil.mdm
+    isOrganizationOwnedDevice=true
+    User ID: 0
+
+  Device Owner Type: 0
+  Encryption Status: per-user
+
+  Enabled Device Admins (User 0, provisioningState: 3):
+    com.evil.mdm/.AdminReceiver:
+      uid=10245
+      testOnlyAdmin=false
+      policies:
+        wipe-data
+        reset-password
+    com.google.android.gms/.mdm.receivers.MdmDeviceAdminReceiver:
+      uid=10140
+      testOnlyAdmin=false
+      policies:
+        wipe-data
+
+  Other state:
+    com.notan/.admin:
