@@ -1,0 +1,11 @@
+dist/
+dist-test/
+data/
+reports/
+test/out/
+test/fixtures/ioc-cache/
+lib/ui-bundle.mjs
+.cache/
+node_modules/
+*.log
+.claude/

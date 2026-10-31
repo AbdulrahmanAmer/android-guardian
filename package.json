@@ -1,0 +1,20 @@
+{
+  "name": "android-guardian",
+  "version": "0.1.0",
+  "description": "Find and remove spyware, stalkerware and remote-access trojans on an Android phone from a Windows PC over USB. No root, nothing installed on the phone.",
+  "author": "Abdulraham Amer",
+  "license": "MIT",
+  "repository": "github:AbdulrahmanAmer/android-guardian",
+  "homepage": "https://github.com/AbdulrahmanAmer/android-guardian#readme",
+  "bugs": "https://github.com/AbdulrahmanAmer/android-guardian/issues",
+  "type": "module",
+  "bin": { "guardian": "./guardian.mjs" },
+  "scripts": {
+    "start": "node build.mjs --ui-only && node guardian.mjs ui",
+    "demo": "node build.mjs --ui-only && node guardian.mjs ui --demo",
+    "test": "node test/run.mjs",
+    "build": "node build.mjs"
+  },
+  "engines": { "node": ">=20" },
+  "keywords": ["android", "stalkerware", "spyware", "malware", "rat", "adb", "security", "anti-spyware", "mvt"]
+}
